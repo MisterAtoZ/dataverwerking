@@ -2,8 +2,14 @@ import openpyxl
 from openpyxl.utils import get_column_letter, column_index_from_string
 
 class AlgemeneInfo():
-    wb = openpyxl.load_workbook('__PID_BIFI_NPERT_JW_5BB.xlsx', data_only=True)
-    dataEx = openpyxl.load_workbook('data-exchange752.xlsx')
+    # action = input("wat is de file waar de data in moet komen te staan? naam.xlsx")
+    wb = openpyxl.load_workbook('__PID_BIFI_npert_JW_5BB.xlsx', data_only=True)
+    uren = input('hoeveel uren is er gestressed?: ')
+    print(uren)
+
+    dataNaam = "data-exchange"+uren+".xlsx"
+    print(dataNaam)
+    dataEx = openpyxl.load_workbook(dataNaam)
 
     sheet = wb['JW1_B']
     data = dataEx['data-exchange']

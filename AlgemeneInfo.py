@@ -21,8 +21,7 @@ class AlgemeneInfo():
             break
         else :
             aantalMetingen = aantalMetingen + 1
-    #print('aantalMetingen ' + str(aantalMetingen))
-
+    # print('aantalMetingen ' + str(aantalMetingen))
 
     nextRow = 0
     for cellObj in sheet['A']:
@@ -50,16 +49,25 @@ class AlgemeneInfo():
 
         uur = int(round(float(generalSheet.cell(row=17+nextRow, column=5).value),0))
         print(uur)
+        for n in range(0,3,1):
+            if(n==0):
+                sheet = wb['JW1_B']
+            elif (n==1):
+                sheet = wb['JW1_F']
+            elif (n==2):
+                sheet = wb['JW2_B']
+            else:
+                sheet = wb['JW2_F']
 
-        for i in range(staal_nr, data.max_row, 4):
-            print(str(data.cell(row=i, column=1).value) + " " + str(uur))
-            if(str(data.cell(row=i, column=1).value) == str(uur)):
-                for j in range(2, 13, 1):
-                    sheet.cell(row=nextRow, column=j).value = data.cell(row=i, column=j+7).value
-                    print(sheet.cell(row=nextRow, column=j).value)
-                break
+            for i in range(staal_nr, data.max_row, 4):
+                print(str(data.cell(row=i, column=1).value) + " " + str(uur))
+                if(str(data.cell(row=i, column=1).value) == str(uur)):
+                    for j in range(2, 13, 1):
+                        sheet.cell(row=nextRow, column=j).value = data.cell(row=i, column=j+7).value
+                        print(sheet.cell(row=nextRow, column=j).value)
+                    break
 
-        nextRow = nextRow + 1
+            nextRow = nextRow + 1
         print('-----------------------')
         print('Saving...')
         wb.save('__PID_BIFI_NPERT_JW_5BB_updated.xlsx')

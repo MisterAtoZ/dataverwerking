@@ -10,7 +10,7 @@ class IV():
         with open(filename, 'r') as file:
             wholeFile = file.read()
             data = wholeFile.split('**Data**')[1]
-            #print(data)
+            # print(data)
 
             splitted = data.split()
 

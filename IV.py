@@ -1,16 +1,9 @@
-import openpyxl
-import sys
-from openpyxl.utils import get_column_letter, column_index_from_string
-
 class IV():
-    wb = openpyxl.load_workbook('__PID_BIFI_NPERT_JW_5BB.xlsx', data_only=True)
-    sheet = wb['JW1_F']
-
-    def getIVlist(filename):
+     def getIVlist(filename, sheetname):
         with open(filename, 'r') as file:
             wholeFile = file.read()
             data = wholeFile.split('**Data**')[1]
-            # print(data)
+            #print(data)
 
             splitted = data.split()
 

@@ -1,6 +1,9 @@
 import AlgemeneInfo
 import IV
 import openpyxl
+import os
+from os import listdir
+from os.path import isfile, join
 from openpyxl.utils import get_column_letter, column_index_from_string
 
 class Main():
@@ -8,18 +11,27 @@ class Main():
     wb = openpyxl.load_workbook('__PID_BIFI_NPERT_JW_5BB_updated.xlsx', data_only=True)
     generalSheet = wb['General']
 
-    for n in range(1, 2, 1):
+    thisdir = os.getcwd()
+    print(os.listdir())
+    print(os.listdir(thisdir + '/' + str(752)))
+
+    for n in range(0, 4, 1):
         if (n == 0):
             sheet = 'JW1_B'
+            nieuwPad = './'+str(752)+'/JW1_B'
         elif (n == 1):
             sheet = 'JW1_F'
+            nieuwPad = './' + str(752) + '/JW1_F'
         elif (n == 2):
             sheet = 'JW2_B'
+            nieuwPad = './' + str(752) + '/JW2_B'
         else:
             sheet = 'JW2_F'
+            nieuwPad = './' + str(752) + '/JW2_F'
 
-        drk = IV.IV.getIVlist(str(sheet) + '.drk', sheet)
-        lgt = IV.IV.getIVlist(str(sheet) + '.lgt', sheet)
+        ivPad = nieuwPad + '/IV/' + sheet
+        drk = IV.IV.getIVlist(str(ivPad) + '.drk', sheet)
+        lgt = IV.IV.getIVlist(str(ivPad) + '.lgt', sheet)
 
         vDark = drk[0]
         iDark = drk[1]
@@ -53,8 +65,11 @@ class Main():
         activeSheet.cell(row=3, column=column5).value = 'I'
 
         #data invullen
-
-
+        for j in range(0,len(vDark),1):
+            activeSheet.cell(row=j+4, column=column1).value = vLight[j]
+            activeSheet.cell(row=j+4, column=column3).value = iLight[j]
+            activeSheet.cell(row=j+4, column=column4).value = vDark[j]
+            activeSheet.cell(row=j+4, column=column5).value = iDark[j]
 
 
     print('Saving...')

@@ -19,8 +19,8 @@ class IV():
                 jump = 2
 
             for j in range(0, len(splitted),jump):
-                v.append(splitted[j])
-                i.append(splitted[j+1])
+                v.append(float(splitted[j]))
+                i.append(float(splitted[j+1]))
 
 
             #print(v)

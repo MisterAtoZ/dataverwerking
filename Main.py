@@ -66,10 +66,10 @@ class Main():
 
             #data invullen
             for j in range(0,len(vDark)-1,1):
-                activeSheet.cell(row=j+4, column=column1).value = vLight[j].replace('.', ',')
-                activeSheet.cell(row=j+4, column=column3).value = iLight[j].replace('.', ',')
-                activeSheet.cell(row=j+4, column=column4).value = vDark[j].replace('.', ',')
-                activeSheet.cell(row=j+4, column=column5).value = iDark[j].replace('.', ',')
+                activeSheet.cell(row=j+4, column=column1).value = vLight[j]
+                activeSheet.cell(row=j+4, column=column3).value = iLight[j]
+                activeSheet.cell(row=j+4, column=column4).value = vDark[j]
+                activeSheet.cell(row=j+4, column=column5).value = iDark[j]
 
             # ------ EQE ------
             eqeSheet = 'EQE_' + sheet
@@ -88,13 +88,14 @@ class Main():
             for f in listdir(eqePad):
                 if f.startswith(sheet) and f.endswith('.eqe'):
                     eqeFile = f
-            print('eqe file ' + str(eqeFile))
+            #print('eqe file ' + str(eqeFile))
             eqe = IV.IV.getIVlist(str(eqePad) + eqeFile, eqeSheet)[1]
 
             #data invullen
             for j in range(0,len(eqe),1):
-                activeSheet.cell(row=j+3, column=column1).value = eqe[j].replace('.', ',')
-                activeSheet.cell(row=j+3, column=column2).value = str(float(eqe[j])/activeSheet.cell(row=j+3, column=3).value).replace('.', ',')
+                activeSheet.cell(row=j+3, column=column1).value = eqe[j]
+                activeSheet.cell(row=j + 3, column=column2).value = eqe[j] / activeSheet.cell(row=j + 3, column=3).value
+
 
     print('Saving...')
     wb.save('__PID_BIFI_NPERT_JW_5BB_updated.xlsx')

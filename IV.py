@@ -13,12 +13,15 @@ class IV():
 
             if str(filename).endswith('drk'):
                 jump = 3
-            else :
+            elif str(filename).endswith('lgt'):
                 jump = 4
+            else:
+                jump = 2
 
             for j in range(0, len(splitted),jump):
                 v.append(splitted[j])
                 i.append(splitted[j+1])
+
 
             #print(v)
             #print(i)

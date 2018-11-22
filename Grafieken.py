@@ -89,25 +89,3 @@ class Grafieken():
                 chartObj.append(seriesObj)
 
             graphs[j].add_chart(chartObj)
-
-
-
-
-"""
-
-        chartObj = openpyxl.chart.ScatterChart()
-        chartObj.title = 'Light IV'
-        chartObj.x_axis.title = 'Voltage [V]'
-        chartObj.y_axis.title = 'Current [A]'
-
-        #i(v) = colom2(colom1)
-        for j in range(0,k,1):
-            for i in range(0,len(uren),1):
-                xvalues = openpyxl.chart.Reference(sheet, min_col=20+(i*5), min_row=4, max_col=20+(i*5), max_row=sheet.max_row)
-                yvalues = openpyxl.chart.Reference(sheet, min_col=21+(i*5), min_row=4, max_col=21+(i*5), max_row=sheet.max_row)
-                seriesObj = openpyxl.chart.Series(yvalues, xvalues, title=str(uren[i]) + ' h')
-                chartObj.append(seriesObj)
-
-            sheet.add_chart(chartObj, 'C20')
-
-"""

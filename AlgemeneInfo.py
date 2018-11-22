@@ -1,9 +1,9 @@
 import openpyxl
 
 class AlgemeneInfo():
-    def datasheet(workbook, sheetNames, huidigUur):
+    def datasheet(workbook, sheetNames, huidigUur, pad):
         wb = workbook
-        dataEx = openpyxl.load_workbook('data-exchange' + huidigUur + '.xlsx')
+        dataEx = openpyxl.load_workbook(pad + 'data-exchange' + huidigUur + '.xlsx')
         data = dataEx['data-exchange']
         generalSheet = wb['General']
 
@@ -53,6 +53,7 @@ class AlgemeneInfo():
                     if(str(data.cell(row=i, column=1).value) == str(uurInt)):
                         for j in range(2, 13, 1):
                             sheet.cell(row=nextRow, column=j).value = data.cell(row=i, column=j+7).value
+                print(nextRow)
                 sheet.cell(row=nextRow, column=17).value = 100-100*sheet.cell(row=nextRow, column=4).value/sheet.cell(row=2, column=4).value
                 nextRow = nextRow + 1
 

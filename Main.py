@@ -7,23 +7,35 @@ from openpyxl.styles import Alignment
 from os import listdir
 
 class Main():
-    huidigUur = input("Hoeveel uren zijn de zonnepanelen gestressed?")
-    # --------------- wisselen tussen JW en NSP ---------------
-    wb = openpyxl.load_workbook('__PID_BIFI_NPERT_JW_5BB.xlsx', data_only=True)
-    generalSheet = wb['General']
-    sheetNames = ['JW1_F', 'JW1_B', 'JW2_F', 'JW2_B']
-    uren = AlgemeneInfo.AlgemeneInfo.datasheet(wb, sheetNames, huidigUur)
-
-    #fonts
+    # fonts
     vet = Font(size=14, bold=True)
     groot = Font(size=14)
+
+    pv = input('welke zonnecellen zijn er getest geweest? (JW/NSP)')
+    huidigUur = input('Hoeveel uren zijn de zonnepanelen gestressed?')
+
+    #NSP werkt nog niet
+    if pv == 'JW':
+        wbName = '__PID_BIFI_npert_JW_5BB'
+        sheetNames = ['JW1_F', 'JW1_B', 'JW2_F', 'JW2_B']
+        pad = './20180910_BIFI_npert_JolyW_5BB/'
+    elif pv == 'NSP':
+        wbName = '__PID_BIFI_pperc_NSP_4BB'
+        sheetNames = ['NSP1_F', 'NSP1_B', 'NSP2_F', 'JW2_B']
+        pad = './20180910_BIFI_pperc_NSP_4BB/'
+    else :
+        print('Geef een geldig antwoord')
+
+    wb = openpyxl.load_workbook(pad + wbName + '.xlsx', data_only=True)
+    generalSheet = wb['General']
+    uren = AlgemeneInfo.AlgemeneInfo.datasheet(wb, sheetNames, huidigUur, pad)
 
     for n in range(0, len(sheetNames), 1):
         #manier zoeken om de range te beginnen vanaf het eerste nieuw toegevoegde uur
         for uur in range(0, len(uren), 1):
             activeSheet = wb[sheetNames[n]]
 
-            nieuwPad = './' + str(uren[uur]) + '/' + sheetNames[n]
+            nieuwPad = pad + str(uren[uur]) + '/' + sheetNames[n]
 
             ivPad = nieuwPad + '/IV/' + sheetNames[n]
             eqePad = nieuwPad + '/IQE/'
@@ -102,6 +114,6 @@ class Main():
     Grafieken.Grafieken.makeSeperateGraphs(wb, sheetNames, uren)
 
     print('Saving...')
-    wb.save('__PID_BIFI_NPERT_JW_5BB_updated.xlsx')
+    wb.save(pad + wbName + '_updated.xlsx')
 
 

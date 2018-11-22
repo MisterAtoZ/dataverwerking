@@ -83,7 +83,9 @@ class AlgemeneInfo():
                         for j in range(2, 13, 1):
                             sheet.cell(row=nextRow, column=j).value = data.cell(row=i, column=j+7).value
                             #print(sheet.cell(row=nextRow, column=j).value)
-                        break
+                        #break
+                sheet.cell(row=nextRow, column=17).value = 100-100*sheet.cell(row=nextRow, column=4).value/sheet.cell(row=2, column=4).value
+
 
                 nextRow = nextRow + 1
                 #print('-----------------------')

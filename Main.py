@@ -10,7 +10,7 @@ class Main():
     print('uren ' + str(uren))
     wb = openpyxl.load_workbook('__PID_BIFI_NPERT_JW_5BB_updated.xlsx', data_only=True)
     generalSheet = wb['General']
-    sheetNames = ['JW1_B', 'JW1_F', 'JW2_B', 'JW2_F']
+    sheetNames = ['JW1_F', 'JW1_B', 'JW2_F', 'JW2_B']
     for uur in range(6, len(uren), 1):
         for n in range(0, len(sheetNames), 1):
             """

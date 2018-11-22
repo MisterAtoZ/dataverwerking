@@ -60,7 +60,6 @@ class Grafieken():
         for j in range(0,len(graphs),1):
             chartObj = openpyxl.chart.ScatterChart()
             chartObj.legend.position = 'b'
-            chartObj.scatterStyle = 'marker'
 
             if j == 0:
                 chartObj.x_axis.title = 'Time [h]'
@@ -83,9 +82,10 @@ class Grafieken():
                     y = 5
 
             for i in range(0, len(sheetNames), 1):
-                xvalues = openpyxl.chart.Reference(wb[sheetNames[i]], min_col=x, min_row=2, max_col=x, max_row=len(uren))
-                yvalues = openpyxl.chart.Reference(wb[sheetNames[i]], min_col=y, min_row=2, max_col=y, max_row=len(uren))
+                xvalues = openpyxl.chart.Reference(wb[sheetNames[i]], min_col=x, min_row=2, max_col=x, max_row=len(uren)+1)
+                yvalues = openpyxl.chart.Reference(wb[sheetNames[i]], min_col=y, min_row=2, max_col=y, max_row=len(uren)+1)
                 seriesObj = openpyxl.chart.Series(yvalues, xvalues, title=str(sheetNames[i]))
+                seriesObj.marker = openpyxl.chart.marker.Marker('circle')
                 chartObj.append(seriesObj)
 
             graphs[j].add_chart(chartObj)

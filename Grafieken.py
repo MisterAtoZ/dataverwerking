@@ -1,12 +1,9 @@
 import openpyxl
 
 class Grafieken():
-     def makeChart(sheetname, workBook, uren):
-        wb = workBook
-        print(wb)
-        print(sheetname)
+    def makeChart(sheetname, workbook, uren):
+        wb = workbook
         sheet = wb[sheetname]
-
 
         if sheetname.startswith('EQE'):
             for j in range(0,2,1):
@@ -51,6 +48,47 @@ class Grafieken():
 
                 sheet.add_chart(chartObj, location)
 
+    def makeSeperateGraphs(workbook, sheetNames, uren):
+        wb = workbook
+        pid = wb['%PID']
+        ff = wb['FF']
+        voc = wb['Voc']
+        isc = wb['Isc']
+
+        graphs = [pid, ff, voc, isc]
+
+        for j in range(0,len(graphs),1):
+            chartObj = openpyxl.chart.ScatterChart()
+            chartObj.legend.position = 'b'
+            chartObj.scatterStyle = 'marker'
+
+            if j == 0:
+                chartObj.x_axis.title = 'Time [h]'
+                chartObj.y_axis.title = '%PID [%]'
+                chartObj.y_axis.scaling.max = 100
+                x = 1
+                y = 17
+            else:
+                chartObj.x_axis.title = '%PIDs [%]'
+                chartObj.x_axis.scaling.max = 100
+                x = 17
+                if j == 1:
+                    chartObj.y_axis.title = 'Fill Factor [%]'
+                    y = 8
+                if j == 2:
+                    chartObj.y_axis.title = 'Voc [mV]'
+                    y = 7
+                if j == 3:
+                    chartObj.y_axis.title = 'Current [mA]'
+                    y = 5
+
+            for i in range(0, len(sheetNames), 1):
+                xvalues = openpyxl.chart.Reference(wb[sheetNames[i]], min_col=x, min_row=2, max_col=x, max_row=len(uren))
+                yvalues = openpyxl.chart.Reference(wb[sheetNames[i]], min_col=y, min_row=2, max_col=y, max_row=len(uren))
+                seriesObj = openpyxl.chart.Series(yvalues, xvalues, title=str(sheetNames[i]))
+                chartObj.append(seriesObj)
+
+            graphs[j].add_chart(chartObj)
 
 
 

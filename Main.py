@@ -10,9 +10,10 @@ class Main():
     print('uren ' + str(uren))
     wb = openpyxl.load_workbook('__PID_BIFI_NPERT_JW_5BB_updated.xlsx', data_only=True)
     generalSheet = wb['General']
-
+    sheetNames = ['JW1_B', 'JW1_F', 'JW2_B', 'JW2_F']
     for uur in range(6, len(uren), 1):
-        for n in range(0, 4, 1):
+        for n in range(0, len(sheetNames), 1):
+            """
             if (n == 0):
                 sheet = 'JW1_B'
             elif (n == 1):
@@ -21,11 +22,12 @@ class Main():
                 sheet = 'JW2_B'
             else:
                 sheet = 'JW2_F'
-            activeSheet = wb[sheet]
+            """
+            activeSheet = wb[sheetNames[n]]
 
-            nieuwPad = './' + str(uren[uur]) + '/' + sheet
+            nieuwPad = './' + str(uren[uur]) + '/' + sheetNames[n] #sheet
 
-            ivPad = nieuwPad + '/IV/' + sheet
+            ivPad = nieuwPad + '/IV/' + sheetNames[n] #sheet
             eqePad = nieuwPad + '/IQE/'
             drk = IV.IV.getIVlist(str(ivPad) + '.drk')
             lgt = IV.IV.getIVlist(str(ivPad) + '.lgt')
@@ -69,10 +71,10 @@ class Main():
                 activeSheet.cell(row=j+4, column=column5).value = iDark[j]
 
             #grafiek
-            Grafieken.Grafieken.makeChart(sheet, wb, uren)
+            Grafieken.Grafieken.makeChart(sheetNames[n], wb, uren)
 
             # ------ EQE ------
-            eqeSheet = 'EQE_' + sheet
+            eqeSheet = 'EQE_' + sheetNames[n]
             activeSheet = wb[eqeSheet]
             #titels invullen
             column1 = activeSheet.max_column + 2
@@ -86,7 +88,7 @@ class Main():
             #data uit file halen
             eqeFile = ''
             for f in listdir(eqePad):
-                if f.startswith(sheet) and f.endswith('.eqe'):
+                if f.startswith(sheetNames[n]) and f.endswith('.eqe'):
                     eqeFile = f
             #print('eqe file ' + str(eqeFile))
             eqe = IV.IV.getIVlist(str(eqePad) + eqeFile)[1]
@@ -99,6 +101,8 @@ class Main():
             #grafiek
             Grafieken.Grafieken.makeChart(eqeSheet, wb, uren)
 
+            #algemene grafieken
+            Grafieken.Grafieken.makeSeperateGraphs(wb, sheetNames, uren)
 
 
     print('Saving...')

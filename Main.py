@@ -14,25 +14,32 @@ class Main():
     pv = input('welke zonnecellen zijn er getest geweest? (JW/NSP)')
     huidigUur = input('Hoeveel uren zijn de zonnepanelen gestressed?')
 
-    #NSP werkt nog niet
+    #NSP werkt nog niet : NSP excel heeft fouten
+    #- bladen EQE hebben _ te weinig (EQE NSP2_F heeft ook nog extra spatie vanachter)
+    #- uren in excel komen niet overeen met mapnamen
     if pv == 'JW':
         wbName = '__PID_BIFI_npert_JW_5BB'
         sheetNames = ['JW1_F', 'JW1_B', 'JW2_F', 'JW2_B']
         pad = './20180910_BIFI_npert_JolyW_5BB/'
+        print('JW')
     elif pv == 'NSP':
         wbName = '__PID_BIFI_pperc_NSP_4BB'
-        sheetNames = ['NSP1_F', 'NSP1_B', 'NSP2_F', 'JW2_B']
+        sheetNames = ['NSP1_F', 'NSP1_B', 'NSP2_F', 'NSP2_B']
         pad = './20180910_BIFI_pperc_NSP_4BB/'
+        print('NSP')
     else :
         print('Geef een geldig antwoord')
 
     wb = openpyxl.load_workbook(pad + wbName + '.xlsx', data_only=True)
     generalSheet = wb['General']
-    uren = AlgemeneInfo.AlgemeneInfo.datasheet(wb, sheetNames, huidigUur, pad)
+    info = AlgemeneInfo.AlgemeneInfo.datasheet(wb, sheetNames, huidigUur, pad)
+    begin = info[0]
+    uren = info[1]
+    print('begin ' + str(begin) + ' uren ' + str(uren) + ' len uren ' + str(len(uren)))
 
     for n in range(0, len(sheetNames), 1):
-        #manier zoeken om de range te beginnen vanaf het eerste nieuw toegevoegde uur
-        for uur in range(0, len(uren), 1):
+        #begin = eerste rij die ingevult moet worden (dus begin-1), maar de uren beginnen pas op rij 2 (dus nog eens -1) => begin-2
+        for uur in range(begin-2, len(uren), 1):
             activeSheet = wb[sheetNames[n]]
 
             nieuwPad = pad + str(uren[uur]) + '/' + sheetNames[n]
@@ -110,7 +117,7 @@ class Main():
 
         #grafieken
         Grafieken.Grafieken.makeChart(sheetNames[n], wb, uren)
-        Grafieken.Grafieken.makeChart(eqeSheet, wb, uren)
+        Grafieken.Grafieken.makeChart('EQE_' + sheetNames[n], wb, uren)
     Grafieken.Grafieken.makeSeperateGraphs(wb, sheetNames, uren)
 
     print('Saving...')

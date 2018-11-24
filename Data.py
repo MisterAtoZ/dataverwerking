@@ -1,4 +1,3 @@
-import os
 class Data():
      def getDataList(filename):
         with open(filename, 'r') as file:

@@ -17,9 +17,17 @@ class Grafieken():
                     chartObj.y_axis.title = 'Normalized EQE [-]'
                     location = 'M20'
 
+                beginCol = 0
+                for i in range(1, sheet.max_column, 1):
+                        if sheet.cell(row=1, column=i).value == '0 h':
+                            beginCol = i
+                            break
+                else:
+                    beginCol = 3
+
                 for i in range(0,len(uren),1):
                     xvalues = openpyxl.chart.Reference(sheet, min_col=1, min_row=3, max_col=1, max_row=sheet.max_row)
-                    yvalues = openpyxl.chart.Reference(sheet, min_col=3+(i*3)+j, min_row=3, max_col=3+(i*3)+j, max_row=sheet.max_row)
+                    yvalues = openpyxl.chart.Reference(sheet, min_col=beginCol+(i*3)+j, min_row=3, max_col=3+(i*3)+j, max_row=sheet.max_row)
                     seriesObj = openpyxl.chart.Series(yvalues, xvalues, title=str(uren[i]) + ' h')
                     chartObj.append(seriesObj)
 
@@ -40,20 +48,31 @@ class Grafieken():
                     chartObj.title = 'Dark IV'
                     location = 'J20'
 
+                beginCol = 0
+                if sheet.max_column > 17:
+                    for i in range(17,sheet.max_column,1):
+                        if sheet.cell(row=1,column=i).value == '0 h':
+                            beginCol = i
+                            break
+                else:
+                    beginCol = 19
+
                 for i in range(0,len(uren),1):
-                    xvalues = openpyxl.chart.Reference(sheet,min_col=20+(i*5)+(j*2),min_row=4,max_col=20+(i*5)+(j*2),max_row=sheet.max_row)
-                    yvalues = openpyxl.chart.Reference(sheet,min_col=21+(i*5)+(j*2),min_row=4,max_col=21+(i*5)+(j*2),max_row=sheet.max_row)
+                    xvalues = openpyxl.chart.Reference(sheet,min_col=beginCol+(i*5)+(j*2),min_row=4,max_col=20+(i*5)+(j*2),max_row=sheet.max_row)
+                    yvalues = openpyxl.chart.Reference(sheet,min_col=beginCol+1+(i*5)+(j*2),min_row=4,max_col=21+(i*5)+(j*2),max_row=sheet.max_row)
                     seriesObj = openpyxl.chart.Series(yvalues, xvalues, title=str(uren[i]) + ' h')
                     chartObj.append(seriesObj)
 
                 sheet.add_chart(chartObj, location)
 
-    def makeSeperateGraphs(workbook, sheetNames, uren):
+    def makeSeperateGraphs(workbook, graphNames, sheetNames, uren):
         wb = workbook
-        pid = wb['%PID']
-        ff = wb['FF']
-        voc = wb['Voc']
-        isc = wb['Isc']
+        graphNames = ['%PID', 'FF', 'Voc', 'Isc']
+
+        pid = wb[graphNames[0]]
+        ff = wb[graphNames[1]]
+        voc = wb[graphNames[2]]
+        isc = wb[graphNames[3]]
 
         graphs = [pid, ff, voc, isc]
 

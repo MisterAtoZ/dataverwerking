@@ -1,6 +1,7 @@
 import AlgemeneInfo
 import Data
 import Grafieken
+import WorkbookLayout
 import openpyxl
 from openpyxl.styles import Font
 from openpyxl.styles import Alignment
@@ -30,12 +31,17 @@ class Main():
     else :
         print('Geef een geldig antwoord')
 
+    graphNames = ['%PID', 'FF', 'Voc', 'Isc']
+
     wb = openpyxl.load_workbook(pad + wbName + '.xlsx', data_only=True)
-    generalSheet = wb['General']
-    info = AlgemeneInfo.AlgemeneInfo.datasheet(wb, sheetNames, huidigUur, pad)
+    dataEx = openpyxl.load_workbook(pad + 'data-exchange' + huidigUur + '.xlsx')
+    WorkbookLayout.WorkbookLayout.makeSheets(wb, dataEx, graphNames, sheetNames)
+    info = AlgemeneInfo.AlgemeneInfo.datasheet(wb, sheetNames, dataEx, pad)
     begin = info[0]
     uren = info[1]
-    print('begin ' + str(begin) + ' uren ' + str(uren) + ' len uren ' + str(len(uren)))
+    print('begin ' + str(begin) + ' uren ' + str(uren))
+
+    generalSheet = wb['General']
 
     for n in range(0, len(sheetNames), 1):
         #begin = eerste rij die ingevult moet worden (dus begin-1), maar de uren beginnen pas op rij 2 (dus nog eens -1) => begin-2
@@ -118,7 +124,7 @@ class Main():
         #grafieken
         Grafieken.Grafieken.makeChart(sheetNames[n], wb, uren)
         Grafieken.Grafieken.makeChart('EQE_' + sheetNames[n], wb, uren)
-    Grafieken.Grafieken.makeSeperateGraphs(wb, sheetNames, uren)
+    Grafieken.Grafieken.makeSeperateGraphs(wb, graphNames, sheetNames, uren)
 
     print('Saving...')
     wb.save(pad + wbName + '_updated.xlsx')

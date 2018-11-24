@@ -1,9 +1,6 @@
-import openpyxl
-
 class AlgemeneInfo():
-    def datasheet(workbook, sheetNames, huidigUur, pad):
+    def datasheet(workbook, sheetNames, dataEx, pad):
         wb = workbook
-        dataEx = openpyxl.load_workbook(pad + 'data-exchange' + huidigUur + '.xlsx')
         data = dataEx['data-exchange']
         generalSheet = wb['General']
 
@@ -36,26 +33,29 @@ class AlgemeneInfo():
             staal_nr = 7-n
 
             #print('----NEXT ROW----')
-            nextRow = 0
-            for cellObj in sheet['A']:
-                if cellObj.value == None:
-                    nextRow = cellObj.row
+            nextRow = 1
+            for row in range(1, sheet.max_row+2, 1):
+                if sheet.cell(row=row, column=1).value == None:
+                    nextRow = row
                     break
             begin = nextRow
+
             #print('----INVULLEN----')
             for rows in range(begin, 2+len(uren), 1):
                 uurInt = int(round(uren[rows-2],0))
                 uurAfgerond = round(uren[rows-2],2)
                 sheet.cell(row=nextRow, column=1).value = uurAfgerond
-                for i in range(staal_nr, data.max_row, 4):
-                    if(str(data.cell(row=i, column=1).value) == str(uurInt)):
-                        for j in range(2, 13, 1):
-                            sheet.cell(row=nextRow, column=j).value = data.cell(row=i, column=j+7).value
-                sheet.cell(row=nextRow, column=17).value = 100-100*sheet.cell(row=nextRow, column=4).value/sheet.cell(row=2, column=4).value
-                nextRow = nextRow + 1
 
-        #print('Saving...')
-        #wb.save('__PID_BIFI_NPERT_JW_5BB_updated.xlsx')
+                for i in range(4,data.max_row,4):
+                    if (str(data.cell(row=i, column=1).value) == str(uurInt)):
+                        for j in range(i,i+4,1):
+                            if (str(data.cell(row=j, column=2).value) == sheetNames[n]):
+                                print('name ' + sheetNames[n] + ' - row ' + str(j))
+                                for k in range(2, 13, 1):
+                                    sheet.cell(row=nextRow, column=k).value = data.cell(row=j, column=k + 7).value
+                                sheet.cell(row=nextRow, column=17).value = 100 - 100 * sheet.cell(row=nextRow,column=4).value / sheet.cell(row=2, column=4).value
+                                nextRow = nextRow + 1
+
         for i in range(0, len(uren),1):
             uren[i] = int(round(uren[i],0))
         return [begin, uren]

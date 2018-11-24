@@ -10,6 +10,9 @@ class Grafieken():
                 chartObj = openpyxl.chart.ScatterChart()
                 chartObj.x_axis.title = 'Wavelenght [nm]'
                 chartObj.legend.position = 'b'
+                chartObj.y_axis.scaling.max = 1.2
+                chartObj.y_axis.scaling.min = 0
+
                 if j == 0:
                     chartObj.y_axis.title = 'EQE [-]'
                     location = 'C20'
@@ -17,13 +20,11 @@ class Grafieken():
                     chartObj.y_axis.title = 'Normalized EQE [-]'
                     location = 'M20'
 
-                beginCol = 0
+                beginCol = 3
                 for i in range(1, sheet.max_column, 1):
                         if sheet.cell(row=1, column=i).value == '0 h':
                             beginCol = i
                             break
-                else:
-                    beginCol = 3
 
                 for i in range(0,len(uren),1):
                     xvalues = openpyxl.chart.Reference(sheet, min_col=1, min_row=3, max_col=1, max_row=sheet.max_row)
@@ -46,16 +47,14 @@ class Grafieken():
                     location = 'C20'
                 else:
                     chartObj.title = 'Dark IV'
+                    chartObj.y_axis.scaling.max = 10
                     location = 'J20'
 
-                beginCol = 0
-                if sheet.max_column > 17:
-                    for i in range(17,sheet.max_column,1):
-                        if sheet.cell(row=1,column=i).value == '0 h':
-                            beginCol = i
-                            break
-                else:
-                    beginCol = 19
+                beginCol = 19
+                for i in range(17,sheet.max_column,1):
+                    if sheet.cell(row=1,column=i).value == '0 h':
+                        beginCol = i
+                        break
 
                 for i in range(0,len(uren),1):
                     xvalues = openpyxl.chart.Reference(sheet,min_col=beginCol+(i*5)+(j*2),min_row=4,max_col=20+(i*5)+(j*2),max_row=sheet.max_row)
@@ -67,7 +66,6 @@ class Grafieken():
 
     def makeSeperateGraphs(workbook, graphNames, sheetNames, uren):
         wb = workbook
-        graphNames = ['%PID', 'FF', 'Voc', 'Isc']
 
         pid = wb[graphNames[0]]
         ff = wb[graphNames[1]]

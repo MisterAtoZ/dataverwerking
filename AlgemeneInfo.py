@@ -1,5 +1,5 @@
 class AlgemeneInfo():
-    def datasheet(workbook, sheetNames, dataEx, pad):
+    def datasheet(workbook, sheetNames, dataEx):
         wb = workbook
         data = dataEx['data-exchange']
         generalSheet = wb['General']
@@ -30,7 +30,6 @@ class AlgemeneInfo():
 
         for n in range(0, len(sheetNames), 1):
             sheet = wb[sheetNames[n]]
-            staal_nr = 7-n
 
             #print('----NEXT ROW----')
             nextRow = 1
@@ -50,7 +49,6 @@ class AlgemeneInfo():
                     if (str(data.cell(row=i, column=1).value) == str(uurInt)):
                         for j in range(i,i+4,1):
                             if (str(data.cell(row=j, column=2).value) == sheetNames[n]):
-                                print('name ' + sheetNames[n] + ' - row ' + str(j))
                                 for k in range(2, 13, 1):
                                     sheet.cell(row=nextRow, column=k).value = data.cell(row=j, column=k + 7).value
                                 sheet.cell(row=nextRow, column=17).value = 100 - 100 * sheet.cell(row=nextRow,column=4).value / sheet.cell(row=2, column=4).value

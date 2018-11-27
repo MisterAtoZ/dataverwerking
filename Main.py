@@ -3,15 +3,20 @@ import Data
 import Grafieken
 import WorkbookLayout
 import openpyxl
+import os
 from os import listdir
 
 class Main():
-    def begin(self, pv, huidigUur, wbName, pad):
-        sheetNames = [pv+'1_F',pv+'1_B',pv+'2_F',pv+'2_B']
+    def begin(self, pv, huidigUur, aantal, kanten, wbName, pad):
+        sheetNames = []
+        for n in range(1,int(aantal)+1,1):
+            for i in range(0,len(kanten),1):
+                sheetNames.append(pv+str(n)+'_'+str(kanten[i]))
+        print(str(sheetNames))
         graphNames = ['%PID', 'FF', 'Voc', 'Isc']
 
         wb = openpyxl.load_workbook(pad + wbName, data_only=True)
-        dataEx = openpyxl.load_workbook(pad + 'data-exchange' + huidigUur + '.xlsx')
+        dataEx = openpyxl.load_workbook(pad + huidigUur + '/' + 'data-exchange' + huidigUur + '.xlsx')
         WorkbookLayout.WorkbookLayout.makeSheets(wb, dataEx, graphNames, sheetNames)
         info = AlgemeneInfo.AlgemeneInfo.datasheet(wb, sheetNames, dataEx)
         begin = info[0]
@@ -24,12 +29,21 @@ class Main():
 
                 nieuwPad = pad + str(uren[uur]) + '/' + sheetNames[n]
 
-                ivPad = nieuwPad + '/IV/' + sheetNames[n]
+                ivPad = nieuwPad + '/IV/'
                 eqePad = nieuwPad + '/IQE/'
 
                 #data uit file halen
-                drk = Data.Data.getDataList(str(ivPad) + '.drk')
-                lgt = Data.Data.getDataList(str(ivPad) + '.lgt')
+                if os.path.exists(ivPad):
+                    if os.path.exists(ivPad + sheetNames[n] + '.drk'):
+                        drk = Data.Data.getDataList(str(ivPad) + sheetNames[n] + '.drk')
+                    else:
+                        print(str(ivPad) + '.drk file bestaat niet')
+                    if os.path.exists(ivPad + sheetNames[n] + '.lgt'):
+                        lgt = Data.Data.getDataList(str(ivPad) + sheetNames[n] + '.lgt')
+                    else:
+                        print(str(ivPad) + sheetNames[n] + ' .lgt file bestaat niet')
+                else:
+                    print(str(ivPad) + ' bestaat niet')
 
                 WorkbookLayout.WorkbookLayout.setIV(activeSheet, uren[uur], drk, lgt)
 
@@ -39,12 +53,17 @@ class Main():
 
                 #data uit file halen
                 eqeFile = ''
-                for f in listdir(eqePad):
-                    if f.startswith(sheetNames[n]) and f.endswith('.eqe'):
-                        eqeFile = f
-                eqe = Data.Data.getDataList(str(eqePad) + eqeFile)[1]
-
-                WorkbookLayout.WorkbookLayout.setEQE(activeSheet, uur, eqe)
+                if os.path.exists(eqePad):
+                    for f in listdir(eqePad):
+                        if f.startswith(sheetNames[n]) and f.endswith('.eqe'):
+                            eqeFile = f
+                    if eqeFile != '':
+                        eqe = Data.Data.getDataList(str(eqePad) + eqeFile)[1]
+                        WorkbookLayout.WorkbookLayout.setEQE(activeSheet, uren[uur], eqe)
+                    else:
+                        print(str(eqePad) + ' file bestaat niet')
+                else:
+                    print(str(eqePad) + ' bestaat niet')
 
             #grafieken
             Grafieken.Grafieken.makeChart(sheetNames[n], wb, uren)

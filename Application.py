@@ -119,10 +119,6 @@ class Application(tk.Frame):
         else:
             self.errorLabel.config(text='Error : Vul een getal bij uur in')
 
-
-
 root = tk.Tk()
 app = Application(master=root)
 app.mainloop()
-
-#ingevuld formulier kunnen opslaan

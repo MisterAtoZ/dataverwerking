@@ -15,19 +15,30 @@ class Main():
         print(str(sheetNames))
         graphNames = ['%PID', 'FF', 'Voc', 'Isc']
 
+        subfolders = [f.name for f in os.scandir(pad) if f.is_dir()]
+        subfolders.sort(key=int)
+        print(subfolders)
+
         wb = openpyxl.load_workbook(pad + wbName, data_only=True)
-        dataEx = openpyxl.load_workbook(pad + huidigUur + '/' + 'data-exchange' + huidigUur + '.xlsx')
-        WorkbookLayout.WorkbookLayout.makeSheets(wb, dataEx, graphNames, sheetNames)
-        info = AlgemeneInfo.AlgemeneInfo.datasheet(wb, sheetNames, dataEx)
-        begin = info[0]
-        uren = info[1]
+        if os.path.exists(pad + subfolders[len(subfolders)-1]):
+            for f in listdir(pad + subfolders[len(subfolders)-1]):
+                if f.startswith('data-exchange') and f.endswith('.xlsx'):
+                    print(f)
+                    data_exchange = f
+                    dataEx = openpyxl.load_workbook(pad + subfolders[len(subfolders)-1] + '/' + data_exchange)
+                    WorkbookLayout.WorkbookLayout.makeSheets(wb, dataEx, graphNames, sheetNames)
+                    info = AlgemeneInfo.AlgemeneInfo.datasheet(wb, sheetNames, dataEx)
+                    begin = info[0]
+                    uren = info[1]
+        else:
+            print('Error')
 
         for n in range(0, len(sheetNames), 1):
             #begin = eerste rij die ingevult moet worden (dus begin-1), maar de uren beginnen pas op rij 2 (dus nog eens -1) => begin-2
             for uur in range(begin-2, len(uren), 1):
                 activeSheet = wb[sheetNames[n]]
 
-                nieuwPad = pad + str(uren[uur]) + '/' + sheetNames[n]
+                nieuwPad = pad + str(subfolders[uur]) + '/' + sheetNames[n]
 
                 ivPad = nieuwPad + '/IV/'
                 eqePad = nieuwPad + '/IQE/'
@@ -71,5 +82,5 @@ class Main():
         Grafieken.Grafieken.makeSeperateGraphs(wb, graphNames, sheetNames, uren)
 
         print('Saving...')
-        wb.save(pad + wbName + '_updated.xlsx')
+        wb.save(pad + subfolders[len(subfolders)-1] + wbName)
         return True

@@ -1,5 +1,5 @@
 class AlgemeneInfo():
-    def datasheet(workbook, sheetNames, dataEx):
+    def datasheet(workbook, sheetNames, dataEx, maxUur):
         wb = workbook
         data = dataEx['data-exchange']
         generalSheet = wb['General']
@@ -43,16 +43,19 @@ class AlgemeneInfo():
             for rows in range(begin, 2+len(uren), 1):
                 uurInt = int(round(uren[rows-2],0))
                 uurAfgerond = round(uren[rows-2],2)
-                sheet.cell(row=nextRow, column=1).value = uurAfgerond
-
-                for i in range(4,data.max_row,4):
-                    if (str(data.cell(row=i, column=1).value) == str(uurInt)):
-                        for j in range(i,i+4,1):
-                            if (str(data.cell(row=j, column=2).value) == sheetNames[n]):
-                                for k in range(2, 13, 1):
-                                    sheet.cell(row=nextRow, column=k).value = data.cell(row=j, column=k + 7).value
-                                sheet.cell(row=nextRow, column=17).value = 100 - 100 * sheet.cell(row=nextRow,column=4).value / sheet.cell(row=2, column=4).value
-                                nextRow = nextRow + 1
+                if uurInt <= int(maxUur):
+                    sheet.cell(row=nextRow, column=1).value = uurAfgerond
+                    for i in range(4,data.max_row,4):
+                        if (str(data.cell(row=i, column=1).value) == str(uurInt)):
+                            for j in range(i,i+4,1):
+                                if (str(data.cell(row=j, column=2).value) == sheetNames[n]):
+                                    for k in range(2, 13, 1):
+                                        sheet.cell(row=nextRow, column=k).value = data.cell(row=j, column=k + 7).value
+                                    sheet.cell(row=nextRow, column=17).value = 100 - 100 * sheet.cell(row=nextRow,column=4).value / sheet.cell(row=2, column=4).value
+                                    nextRow = nextRow + 1
+                else:
+                    uren = uren[:rows-2]
+                    break
 
         for i in range(0, len(uren),1):
             uren[i] = int(round(uren[i],0))

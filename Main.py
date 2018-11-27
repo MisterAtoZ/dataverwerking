@@ -7,7 +7,7 @@ import os
 from os import listdir
 
 class Main():
-    def begin(self, pv, huidigUur, aantal, kanten, wbName, pad):
+    def begin(self, pv, maxUur, aantal, kanten, wbName, pad):
         sheetNames = []
         for n in range(1,int(aantal)+1,1):
             for i in range(0,len(kanten),1):
@@ -27,7 +27,7 @@ class Main():
                     data_exchange = f
                     dataEx = openpyxl.load_workbook(pad + subfolders[len(subfolders)-1] + '/' + data_exchange)
                     WorkbookLayout.WorkbookLayout.makeSheets(wb, dataEx, graphNames, sheetNames)
-                    info = AlgemeneInfo.AlgemeneInfo.datasheet(wb, sheetNames, dataEx)
+                    info = AlgemeneInfo.AlgemeneInfo.datasheet(wb, sheetNames, dataEx, maxUur)
                     begin = info[0]
                     uren = info[1]
         else:
@@ -82,5 +82,5 @@ class Main():
         Grafieken.Grafieken.makeSeperateGraphs(wb, graphNames, sheetNames, uren)
 
         print('Saving...')
-        wb.save(pad + subfolders[len(subfolders)-1] + wbName)
+        wb.save(pad + str(maxUur) + wbName)
         return True

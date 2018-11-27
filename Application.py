@@ -35,11 +35,11 @@ class Application(tk.Frame):
             pass
 
         #labels
-        self.uurLabel = tk.Label(self, text='Hoeveel uren zijn de zonnepanelen gestressed?').grid(sticky='W',row=0)
-        self.naamLabel = tk.Label(self, text='Welke zonnecellen zijn er getest geweest?').grid(sticky='W',row=1)
-        self.aantalLabel = tk.Label(self, text='Hoeveel samples?').grid(sticky='W',row=1,column=2)
-        self.kantLabel = tk.Label(self, text='Welke kanten?').grid(sticky='W', row=1,column=4)
-        self.fileLabel = tk.Label(self, text='Kies waar de resultaten moeten in worden opgeslagen').grid(sticky='W',row=2)
+        self.uurLabel = tk.Label(self, text='Maximum hour of stressing?').grid(sticky='W',row=0)
+        self.naamLabel = tk.Label(self, text='PV-cells names').grid(sticky='W',row=1)
+        self.aantalLabel = tk.Label(self, text='Number of samples').grid(sticky='W',row=1,column=2)
+        self.kantLabel = tk.Label(self, text='Sides').grid(sticky='W', row=1,column=4)
+        self.fileLabel = tk.Label(self, text='Base file').grid(sticky='W',row=2)
         self.errorLabel = tk.Label(self, text='', fg='red')
         self.errorLabel.grid(sticky='W', row=4)
 
@@ -66,7 +66,7 @@ class Application(tk.Frame):
     def pickFile(self):
         self.filename = tk.filedialog.askopenfilename(initialdir="/", title="Select file",filetypes=(("xlsx files", "*.xlsx"), ("all files", "*.*")))
         if self.filename != None:
-            self.fileInput.insert(0,self.filename)
+            self.fileVar.set(self.filename)
 
     def begin(self):
         #kanten
@@ -86,18 +86,18 @@ class Application(tk.Frame):
             pad = pad + str(filenameSplit[i]) + '/'
         wbName = filenameSplit[len(filenameSplit)-1]
 
-        if self.uurInput.get() =="":
-            self.errorLabel.config(text='Error : Vul een uur in')
+        if self.uurInput.get() == "":
+            self.errorLabel.config(text='Error : Missing hour')
         elif self.naamInput.get() == "":
-            self.errorLabel.config(text='Error : Vul een naam in')
+            self.errorLabel.config(text='Error : Missing name')
         elif self.aantalInput.get() == "":
-            self.errorLabel.config(text='Error : Vul een aantal samples in')
+            self.errorLabel.config(text='Error : Missing number of samples')
         elif self.F.get() == 0 & self.B.get() == 0 & self.R.get() == 0 :
-            self.errorLabel.config(text='Error : Kies ten minste 1 kant')
+            self.errorLabel.config(text='Error : Missing sides')
         elif self.uurInput.get().isdigit():
             print('uur ' + str(self.uurInput.get()))
             if Main.Main.begin(self, self.naamInput.get(), self.uurInput.get(), self.aantalInput.get(), kanten, wbName, pad):
-                self.errorLabel.config(text='Het bestand is opgeslagen')
+                self.errorLabel.config(text='File saved')
                 with open('config.txt', 'w') as f:
                     # naam
                     f.write(self.naamInput.get())
@@ -114,10 +114,11 @@ class Application(tk.Frame):
                     f.write('|')
                     # filedir
                     f.write(self.fileInput.get())
+                    #f.write(':::')
             else:
-                self.errorLabel.config(text='Er is iets fout gelopen')
+                self.errorLabel.config(text='Something went wrong')
         else:
-            self.errorLabel.config(text='Error : Vul een getal bij uur in')
+            self.errorLabel.config(text='Error : Hour must be a number')
 
 root = tk.Tk()
 app = Application(master=root)

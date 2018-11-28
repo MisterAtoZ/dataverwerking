@@ -59,12 +59,21 @@ class Application(tk.Frame):
         self.stopBtn = tk.Button(self, text='Stop', command=quit).grid(sticky='W',row=3, pady=4, padx=5)
         self.beginBtn = tk.Button(self, text='Begin', command=self.begin).grid(sticky='W',row=3, pady=4, padx=112)
         self.fileBtn = tk.Button(self, text='Pick file', command=self.pickFile).grid(sticky='W',row=3, pady=4, padx=50)
+        self.rmBtn = tk.Button(self, text='Remove config', command=self.remove).grid(sticky='W',row=3,pady=4, padx=174)
 
         #combobox
         self.combo = ttk.Combobox(self,textvariable=self.comboVar,values=self.comboList)
         self.combo.grid(row=0,column=3)
         self.combo.current(len(self.comboList)-1)
         self.combo.bind('<<ComboboxSelected>>', self.select)  # binding of user selection with a custom callback
+
+    def remove(self):
+        i = int(self.comboVar.get().split(' - ')[0])
+        with open('config.txt','r') as file:
+            filedata = file.read()
+        filedata= filedata.replace(self.config_content[i] + '<<>>', '')
+        with open('config.txt', 'w') as file:
+            file.write(filedata)
 
     def pickFile(self):
         self.filename = tk.filedialog.askopenfilename(initialdir="/", title="Select file",filetypes=(("xlsx files", "*.xlsx"), ("all files", "*.*")))
@@ -79,12 +88,15 @@ class Application(tk.Frame):
     def read_file(self):
         with open('config.txt', 'r') as f:
             data = f.read()
-            self.samples = data.split('<<>>')
-            for i in range(0, len(self.samples) - 1, 1):
-                self.config_content.append(self.samples[i])
-                self.set_vars(i)
-                self.comboVar.set(str(i) + ' - ' + self.naamVar.get() + '_' + str(self.aantalVar.get()))
-                self.comboList.append(self.comboVar.get())
+            if data != '':
+                self.samples = data.split('<<>>')
+                for i in range(0, len(self.samples) - 1, 1):
+                    self.config_content.append(self.samples[i])
+                    self.set_vars(i)
+                    self.comboVar.set(str(i) + ' - ' + self.naamVar.get() + '_' + str(self.aantalVar.get()))
+                    self.comboList.append(self.comboVar.get())
+            else:
+                self.comboList.append('')
 
     def set_vars(self, i):
         settings = self.samples[i].split('|')

@@ -32,6 +32,7 @@ class Main():
                     uren = info[1]
         else:
             print('Error')
+            return False
 
         for n in range(0, len(sheetNames), 1):
             #begin = eerste rij die ingevult moet worden (dus begin-1), maar de uren beginnen pas op rij 2 (dus nog eens -1) => begin-2
@@ -82,5 +83,5 @@ class Main():
         Grafieken.Grafieken.makeSeperateGraphs(wb, graphNames, sheetNames, uren)
 
         print('Saving...')
-        wb.save(pad + str(maxUur) + wbName)
+        wb.save(pad + str(uren[len(uren)-1]) + wbName)
         return True

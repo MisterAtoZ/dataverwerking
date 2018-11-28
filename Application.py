@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog
+from tkinter import ttk
 import Main
 
 class Application(tk.Frame):
@@ -18,20 +19,16 @@ class Application(tk.Frame):
         self.B = tk.IntVar()
         self.R = tk.IntVar()
         self.fileVar = tk.StringVar()
+        self.comboVar = tk.StringVar()
+        self.comboList = []
+        self.config_content = []
+        self.samples = []
 
         #set variables if config file excists
         try:
-            with open('config.txt', 'r') as f:
-                data = f.read()
-                settings = data.split('|')
-                print(str(settings))
-                self.naamVar.set(settings[0])
-                self.aantalVar.set(settings[1])
-                self.F.set(settings[2])
-                self.B.set(settings[3])
-                self.R.set(settings[4])
-                self.fileVar.set(settings[5])
+            self.read_file()
         except IOError:
+            self.comboList.append('')
             pass
 
         #labels
@@ -63,10 +60,41 @@ class Application(tk.Frame):
         self.beginBtn = tk.Button(self, text='Begin', command=self.begin).grid(sticky='W',row=3, pady=4, padx=112)
         self.fileBtn = tk.Button(self, text='Pick file', command=self.pickFile).grid(sticky='W',row=3, pady=4, padx=50)
 
+        #combobox
+        self.combo = ttk.Combobox(self,textvariable=self.comboVar,values=self.comboList)
+        self.combo.grid(row=0,column=3)
+        self.combo.current(len(self.comboList)-1)
+        self.combo.bind('<<ComboboxSelected>>', self.select)  # binding of user selection with a custom callback
+
     def pickFile(self):
         self.filename = tk.filedialog.askopenfilename(initialdir="/", title="Select file",filetypes=(("xlsx files", "*.xlsx"), ("all files", "*.*")))
         if self.filename != None:
             self.fileVar.set(self.filename)
+
+    def select(self, event):
+        print(self.comboVar.get())
+        i = int(self.comboVar.get().split(' - ')[0])
+        self.set_vars(i)
+
+    def read_file(self):
+        with open('config.txt', 'r') as f:
+            data = f.read()
+            self.samples = data.split('<<>>')
+            for i in range(0, len(self.samples) - 1, 1):
+                self.config_content.append(self.samples[i])
+                self.set_vars(i)
+                self.comboVar.set(str(i) + ' - ' + self.naamVar.get() + '_' + str(self.aantalVar.get()))
+                self.comboList.append(self.comboVar.get())
+
+    def set_vars(self, i):
+        settings = self.samples[i].split('|')
+        print(str(settings))
+        self.naamVar.set(settings[0])
+        self.aantalVar.set(settings[1])
+        self.F.set(settings[2])
+        self.B.set(settings[3])
+        self.R.set(settings[4])
+        self.fileVar.set(settings[5])
 
     def begin(self):
         #kanten
@@ -98,23 +126,18 @@ class Application(tk.Frame):
             print('uur ' + str(self.uurInput.get()))
             if Main.Main.begin(self, self.naamInput.get(), self.uurInput.get(), self.aantalInput.get(), kanten, wbName, pad):
                 self.errorLabel.config(text='File saved')
-                with open('config.txt', 'w') as f:
-                    # naam
-                    f.write(self.naamInput.get())
-                    f.write('|')
-                    # aantal
-                    f.write(str(self.aantalInput.get()))
-                    f.write('|')
-                    # kanten
-                    f.write(str(self.F.get()))
-                    f.write('|')
-                    f.write(str(self.B.get()))
-                    f.write('|')
-                    f.write(str(self.R.get()))
-                    f.write('|')
-                    # filedir
-                    f.write(self.fileInput.get())
-                    #f.write(':::')
+                config_text = self.naamInput.get() + '|' + str(self.aantalInput.get()) + '|' + str(self.F.get()) + '|' +\
+                              str(self.B.get()) + '|' + str(self.R.get()) + '|' + self.fileInput.get()
+
+                in_file = False
+                for i in range(0,len(self.config_content),1):
+                    if config_text == self.config_content[i]:
+                        in_file = True
+
+                if in_file == False:
+                    with open('config.txt','a+') as f:
+                        f.write(config_text)
+                        f.write('<<>>')
             else:
                 self.errorLabel.config(text='Something went wrong')
         else:

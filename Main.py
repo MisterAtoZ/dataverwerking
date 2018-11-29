@@ -41,6 +41,9 @@ class Main():
                 ivPad = nieuwPad + '/IV/'
                 eqePad = nieuwPad + '/IQE/'
 
+                drk = []
+                lgt = []
+
                 #data uit file halen
                 if os.path.exists(ivPad):
                     if os.path.exists(ivPad + sheetNames[n] + '.drk'):
@@ -54,7 +57,8 @@ class Main():
                 else:
                     print(str(ivPad) + ' bestaat niet')
 
-                WorkbookLayout.WorkbookLayout.setIV(activeSheet, uren[uur], drk, lgt)
+                if drk != [] and lgt != []:
+                    WorkbookLayout.WorkbookLayout.setIV(activeSheet, uren[uur], drk, lgt)
 
                 # ------ EQE ------
                 eqeSheet = 'EQE_' + sheetNames[n]

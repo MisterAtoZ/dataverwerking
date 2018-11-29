@@ -57,8 +57,8 @@ class Grafieken():
                         break
 
                 for i in range(0,len(uren),1):
-                    xvalues = openpyxl.chart.Reference(sheet,min_col=beginCol+(i*5)+(j*2),min_row=4,max_col=20+(i*5)+(j*2),max_row=sheet.max_row)
-                    yvalues = openpyxl.chart.Reference(sheet,min_col=beginCol+1+(i*5)+(j*2),min_row=4,max_col=21+(i*5)+(j*2),max_row=sheet.max_row)
+                    xvalues = openpyxl.chart.Reference(sheet,min_col=beginCol+(i*5)+(j*2),min_row=4,max_col=beginCol+(i*5)+(j*2),max_row=sheet.max_row)
+                    yvalues = openpyxl.chart.Reference(sheet,min_col=beginCol+1+(i*5)+(j*2),min_row=4,max_col=beginCol+1+(i*5)+(j*2),max_row=sheet.max_row)
                     seriesObj = openpyxl.chart.Series(yvalues, xvalues, title=str(uren[i]) + ' h')
                     chartObj.append(seriesObj)
 

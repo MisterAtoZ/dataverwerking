@@ -17,17 +17,14 @@ class Main():
 
         subfolders = [f.name for f in os.scandir(pad) if f.is_dir()]
         subfolders.sort(key=int)
-        print(subfolders)
-
         wb = openpyxl.load_workbook(pad + wbName, data_only=True)
         if os.path.exists(pad + subfolders[len(subfolders)-1]):
             for f in listdir(pad + subfolders[len(subfolders)-1]):
                 if f.startswith('data-exchange') and f.endswith('.xlsx'):
-                    print(f)
                     data_exchange = f
                     dataEx = openpyxl.load_workbook(pad + subfolders[len(subfolders)-1] + '/' + data_exchange)
                     WorkbookLayout.WorkbookLayout.makeSheets(wb, dataEx, graphNames, sheetNames)
-                    info = AlgemeneInfo.AlgemeneInfo.datasheet(wb, sheetNames, dataEx, maxUur)
+                    info = AlgemeneInfo.AlgemeneInfo.datasheet(wb, sheetNames, dataEx, maxUur, subfolders)
                     begin = info[0]
                     uren = info[1]
         else:

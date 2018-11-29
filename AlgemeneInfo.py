@@ -1,5 +1,5 @@
 class AlgemeneInfo():
-    def datasheet(workbook, sheetNames, dataEx, maxUur):
+    def datasheet(workbook, sheetNames, dataEx, maxUur, subfolders):
         wb = workbook
         data = dataEx['data-exchange']
         generalSheet = wb['General']
@@ -30,7 +30,6 @@ class AlgemeneInfo():
 
         for n in range(0, len(sheetNames), 1):
             sheet = wb[sheetNames[n]]
-
             #print('----NEXT ROW----')
             nextRow = 1
             for row in range(1, sheet.max_row+2, 1):
@@ -38,16 +37,15 @@ class AlgemeneInfo():
                     nextRow = row
                     break
             begin = nextRow
-
             #print('----INVULLEN----')
             for rows in range(begin, 2+len(uren), 1):
                 uurInt = int(round(uren[rows-2],0))
                 uurAfgerond = round(uren[rows-2],2)
                 if uurInt <= int(maxUur):
                     sheet.cell(row=nextRow, column=1).value = uurAfgerond
-                    for i in range(4,data.max_row,4):
-                        if (str(data.cell(row=i, column=1).value) == str(uurInt)):
-                            for j in range(i,i+4,1):
+                    for i in range(4,data.max_row,len(sheetNames)):
+                        if (str(data.cell(row=i, column=1).value) == str(uurInt)) or (str(data.cell(row=i, column=1).value) == str(subfolders[rows-2])):
+                            for j in range(i,i+len(sheetNames),1):
                                 if (str(data.cell(row=j, column=2).value) == sheetNames[n]):
                                     for k in range(2, 13, 1):
                                         sheet.cell(row=nextRow, column=k).value = data.cell(row=j, column=k + 7).value

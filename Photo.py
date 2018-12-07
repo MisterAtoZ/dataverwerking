@@ -1,16 +1,56 @@
 from PIL import Image, ImageDraw, ImageFont
 
 class Photo():
+    def text_wrap(text, font, max_width):
+        lines = []
+        # If the width of the text is smaller than image width
+        # we don't need to split it, just add it to the lines array
+        # and return
+        if font.getsize(text)[0] <= max_width:
+            lines.append(text)
+        else:
+            text = text.replace('_', ' ')
+            # split the line by spaces to get words
+            words = text.split(' ')
+            i = 0
+            # append every word to a line while its width is shorter than image width
+            while i < len(words):
+                line = ''
+                while i < len(words) and font.getsize(line + words[i])[0] <= max_width:
+                    line = line + words[i] + " "
+                    i += 1
+                if not line:
+                    line = words[i]
+                    i += 1
+                # when the line gets longer than the max width do not append the word,
+                # add the line to the lines array
+                lines.append(line)
+        return lines
+
     def makeTitle(title):
-        img = Image.new('RGB', (6000, 4000), color = (73,109,137))
-
-        fnt = ImageFont.truetype('C:/Windows/Fonts/Arial.ttf', 1000)
+        MAX_W, MAX_H = 6000, 4000
+        img = Image.new('RGB', (MAX_W, MAX_H), color = (73,109,137))
         d = ImageDraw.Draw(img)
-        d.text((2000,1500), title, font=fnt, fill=(255,255,255))
+        fnt = ImageFont.truetype('C:/Windows/Fonts/Arial.ttf', size=750, encoding='unic')
+        color = 'rgb(255, 255, 255)'
 
+        lines = Photo.text_wrap(title, fnt, MAX_W)
+
+        linenr = 1
+        for line in lines:
+
+            w, h = fnt.getsize(line)
+            x = (MAX_W - w) / 2
+            y = (MAX_H - h) * linenr / (2*len(lines))
+            # draw the line on the image
+            d.text((x, y), line, fill=color, font=fnt, align='center')
+
+            # update the y position so that we can use it for next line
+            y = y + h
+            linenr = linenr + 1
+        # save the image
         img.save(title + '.jpg')
         Photo.resize(title + '.jpg', title)
-        return title + '.jpg'
 
 
     def resize(img, title):
@@ -50,26 +90,3 @@ class Photo():
                 x_offset += im.size[0]
 
         new_im.save(name + '.jpg')
-        return name + '.jpg'
-
-"""
-title = Photo.makeTitle('0 h')
-photo1 = Photo.merge_image(title, '0_JW1_F.jpg', True, 'c1')
-photo2 = Photo.merge_image(photo1, '0_JW1_B.jpg', True, 'c1')
-photo3 = Photo.merge_image(photo2, '0_JW2_F.jpg', True, 'c1')
-photo4 = Photo.merge_image(photo3, '0_JW2_B.jpg', True, 'c1')
-
-
-title = Photo.makeTitle('JW')
-JW1_F = Photo.makeTitle('JW1_F')
-JW1_B = Photo.makeTitle('JW1_B')
-JW2_F = Photo.makeTitle('JW2_F')
-JW2_B = Photo.makeTitle('JW2_B')
-
-a1 = Photo.merge_image(title, JW1_F, True, 'c0')
-a2 = Photo.merge_image(a1, JW1_B, True, 'c0')
-a3 = Photo.merge_image(a2, JW2_F, True, 'c0')
-a4 = Photo.merge_image(a3, JW2_B, True, 'c0')
-
-tot = Photo.merge_image(a4, photo4, False, 'resultaat')
-"""

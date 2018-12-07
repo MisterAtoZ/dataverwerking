@@ -2,6 +2,7 @@ import AlgemeneInfo
 import Data
 import Grafieken
 import WorkbookLayout
+import Photo
 import openpyxl
 import os
 from os import listdir
@@ -31,12 +32,32 @@ class Main():
             print('Error')
             return False
 
+        Photo.Photo.makeTitle(wbName)
+
         for n in range(0, len(sheetNames), 1):
+            Photo.Photo.makeTitle(sheetNames[n])
             #begin = eerste rij die ingevult moet worden (dus begin-1), maar de uren beginnen pas op rij 2 (dus nog eens -1) => begin-2
             for uur in range(begin-2, len(uren), 1):
-                activeSheet = wb[sheetNames[n]]
-
                 nieuwPad = pad + str(subfolders[uur]) + '/' + sheetNames[n]
+                photoPath = pad + str(subfolders[uur]) + '/'
+
+                for f in listdir(photoPath):
+                    if (f.endswith(str(sheetNames[n]) + '.JPG') or f.endswith(str(sheetNames[n]) + '.jpg')):
+                        photo = f
+                        Photo.Photo.resize(photoPath + photo, photoPath + sheetNames[n] + '_resised')
+
+                #HORIZONTALE TOEVOEGING
+                if n == 0:
+                    Photo.Photo.makeTitle(str(uren[uur]) + ' h')
+                    Photo.Photo.merge_image(str(wbName) + '.jpg', str(uren[uur]) + ' h.jpg', False, str(wbName))
+                    os.remove(str(uren[uur]) + ' h.jpg')
+
+                Photo.Photo.merge_image(str(sheetNames[n]) + '.jpg', photoPath + sheetNames[n] + '_resised.jpg', False, str(sheetNames[n]))
+
+                #remove files
+                os.remove(photoPath + sheetNames[n] + '_resised.jpg')
+
+                activeSheet = wb[sheetNames[n]]
 
                 ivPad = nieuwPad + '/IV/'
                 eqePad = nieuwPad + '/IQE/'
@@ -77,6 +98,10 @@ class Main():
                         print(str(eqePad) + ' file bestaat niet')
                 else:
                     print(str(eqePad) + ' bestaat niet')
+
+            #VERTICALE TOEVOEGING
+            Photo.Photo.merge_image(str(wbName) + '.jpg', str(sheetNames[n]) + '.jpg', True, str(wbName))
+            os.remove(str(sheetNames[n]) + '.jpg')
 
             #grafieken
             Grafieken.Grafieken.makeChart(sheetNames[n], wb, uren)

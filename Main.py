@@ -31,8 +31,8 @@ class Main():
         else:
             print('Error')
             return False
-
-        Photo.Photo.makeTitle(wbName)
+        wbNameImg = wbName.replace('.xlsx','')
+        Photo.Photo.makeTitle(wbNameImg)
 
         for n in range(0, len(sheetNames), 1):
             Photo.Photo.makeTitle(sheetNames[n])
@@ -49,7 +49,7 @@ class Main():
                 #HORIZONTALE TOEVOEGING
                 if n == 0:
                     Photo.Photo.makeTitle(str(uren[uur]) + ' h')
-                    Photo.Photo.merge_image(str(wbName) + '.jpg', str(uren[uur]) + ' h.jpg', False, str(wbName))
+                    Photo.Photo.merge_image(str(wbNameImg) + '.jpg', str(uren[uur]) + ' h.jpg', False, str(wbNameImg))
                     os.remove(str(uren[uur]) + ' h.jpg')
 
                 Photo.Photo.merge_image(str(sheetNames[n]) + '.jpg', photoPath + sheetNames[n] + '_resised.jpg', False, str(sheetNames[n]))
@@ -100,7 +100,7 @@ class Main():
                     print(str(eqePad) + ' bestaat niet')
 
             #VERTICALE TOEVOEGING
-            Photo.Photo.merge_image(str(wbName) + '.jpg', str(sheetNames[n]) + '.jpg', True, str(wbName))
+            Photo.Photo.merge_image(str(wbNameImg) + '.jpg', str(sheetNames[n]) + '.jpg', True, str(wbNameImg))
             os.remove(str(sheetNames[n]) + '.jpg')
 
             #grafieken

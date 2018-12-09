@@ -56,10 +56,10 @@ class Application(tk.Frame):
         self.kantR = tk.Checkbutton(self, text="R", variable=self.R, onvalue=1, offvalue=0).grid(row=1,column=7,sticky='W')
 
         #buttons
-        self.stopBtn = tk.Button(self, text='Stop', command=quit).grid(sticky='W',row=3, pady=4, padx=5)
-        self.beginBtn = tk.Button(self, text='Begin', command=self.begin).grid(sticky='W',row=3, pady=4, padx=112)
-        self.fileBtn = tk.Button(self, text='Pick file', command=self.pickFile).grid(sticky='W',row=3, pady=4, padx=50)
-        self.rmBtn = tk.Button(self, text='Remove config', command=self.remove).grid(sticky='W',row=3,pady=4, padx=174)
+        #self.stopBtn = tk.Button(self, text='Stop', command=quit).grid(sticky='W',row=3, pady=4, padx=5)
+        self.beginBtn = tk.Button(self, text='Begin', command=self.begin).grid(sticky='W',row=3,column=2, pady=4, padx=20)
+        self.fileBtn = tk.Button(self, text='Pick file', command=self.pickFile).grid(sticky='W',row=3, column=1, pady=4)
+        self.rmBtn = tk.Button(self, text='Remove config', command=self.remove).grid(sticky='W',row=3, column=1,pady=4, padx=(70,0))
 
         #combobox
         self.combo = ttk.Combobox(self,textvariable=self.comboVar,values=self.comboList)
@@ -132,7 +132,7 @@ class Application(tk.Frame):
             self.errorLabel.config(text='Error : Missing name')
         elif self.aantalInput.get() == "":
             self.errorLabel.config(text='Error : Missing number of samples')
-        elif self.F.get() == 0 & self.B.get() == 0 & self.R.get() == 0 :
+        elif self.F.get() == 0 and self.B.get() == 0 and self.R.get() == 0 :
             self.errorLabel.config(text='Error : Missing sides')
         elif self.uurInput.get().isdigit():
             print('uur ' + str(self.uurInput.get()))

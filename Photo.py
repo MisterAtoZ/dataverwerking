@@ -1,7 +1,16 @@
 from PIL import Image, ImageDraw, ImageFont
 
 class Photo():
+
     def text_wrap(text, font, max_width):
+        """
+        if the text is to long to fit on 1 line, make more text lines
+        :param text: text that is checked if it is too long
+        :param font: text font
+        :param max_width: maximum width of the text
+        :return: list of lines with the text
+        source: https://haptik.ai/tech/putting-text-on-images-using-python%E2%80%8A-%E2%80%8Apart2/
+        """
         lines = []
         # If the width of the text is smaller than image width
         # we don't need to split it, just add it to the lines array
@@ -28,6 +37,10 @@ class Photo():
         return lines
 
     def makeTitle(title):
+        """
+        make a blue-gray image with a white title and save it with the name "title paramter".jpg
+        :param title: name for the saved image + .jpg
+        """
         MAX_W, MAX_H = 6000, 4000
         img = Image.new('RGB', (MAX_W, MAX_H), color = (73,109,137))
         d = ImageDraw.Draw(img)
@@ -38,13 +51,11 @@ class Photo():
 
         linenr = 1
         for line in lines:
-
             w, h = fnt.getsize(line)
             x = (MAX_W - w) / 2
             y = (MAX_H - h) * linenr / (2*len(lines))
             # draw the line on the image
             d.text((x, y), line, fill=color, font=fnt, align='center')
-
             # update the y position so that we can use it for next line
             y = y + h
             linenr = linenr + 1
@@ -52,8 +63,14 @@ class Photo():
         img.save(title + '.jpg')
         Photo.resize(title + '.jpg', title)
 
-
     def resize(img, title):
+        """
+        resize the image to have a basewidth of 300 and the height resized to keep the ratio.
+        save it with the name "title parameter".jpg
+        source: https://stackoverflow.com/questions/273946/how-do-i-resize-an-image-using-pil-and-maintain-its-aspect-ratio
+        :param img: imgage that is being resized
+        :param title: name for the saved image + .jpg
+        """
         img = Image.open(img)
         basewidth = 300
         wpercent = (basewidth / float(img.size[0]))
@@ -61,13 +78,19 @@ class Photo():
         img = img.resize((basewidth, hsize), Image.ANTIALIAS)
         img.save(title + '.jpg')
 
-    """ 
-    merge_image takes three parameters first two parameters specify 
-    the two images to be merged and third parameter i.e. vertically
-    is a boolean type which if True merges images vertically
-    and finally saves and returns the file_name
-    """
+
     def merge_image(img1, img2, vertically, name):
+        """
+        merge_image takes three parameters first two parameters specify
+        the two images to be merged and third parameter i.e. vertically
+        is a boolean type which if True merges images vertically
+        and finally saves and returns the file_name
+        source: https://stackoverflow.com/questions/30227466/combine-several-images-horizontally-with-python
+        :param img1: first image that is being merged
+        :param img2: second image that is being merged
+        :param vertically: boolean. True: image 2 is merged under image 1. False: image 2 is merged to the right of image 1
+        :param name: name for the saved image + .jpg
+        """
         images = list(map(Image.open, [img1, img2]))
         widths, heights = zip(*(i.size for i in images))
         if vertically:

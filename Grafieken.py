@@ -1,10 +1,17 @@
 import openpyxl
 
 class Grafieken():
-    def makeChart(sheetname, workbook, uren):
+    def makeChart(sheetname, workbook, hours):
+        """
+        creates the IV and EQE graphs of a sample
+        :param sheetname: name of the sheet
+        :param workbook: Excel workbook
+        :param hours: list of all the hours
+        """
         wb = workbook
         sheet = wb[sheetname]
 
+        # EQE graphs
         if sheetname.startswith('EQE'):
             for j in range(0,2,1):
                 chartObj = openpyxl.chart.ScatterChart()
@@ -26,14 +33,15 @@ class Grafieken():
                             beginCol = i
                             break
 
-                for i in range(0,len(uren),1):
+                for i in range(0, len(hours), 1):
                     xvalues = openpyxl.chart.Reference(sheet, min_col=1, min_row=3, max_col=1, max_row=sheet.max_row)
                     yvalues = openpyxl.chart.Reference(sheet, min_col=beginCol+(i*3)+j, min_row=3, max_col=3+(i*3)+j, max_row=sheet.max_row)
-                    seriesObj = openpyxl.chart.Series(yvalues, xvalues, title=str(uren[i]) + ' h')
+                    seriesObj = openpyxl.chart.Series(yvalues, xvalues, title=str(hours[i]) + ' h')
                     chartObj.append(seriesObj)
 
                 sheet.add_chart(chartObj, location)
 
+        # IV graphs
         else:
             for j in range(0,2,1):
                 chartObj = openpyxl.chart.ScatterChart()
@@ -56,15 +64,22 @@ class Grafieken():
                         beginCol = i
                         break
 
-                for i in range(0,len(uren),1):
+                for i in range(0, len(hours), 1):
                     xvalues = openpyxl.chart.Reference(sheet,min_col=beginCol+(i*5)+(j*2),min_row=4,max_col=beginCol+(i*5)+(j*2),max_row=sheet.max_row)
                     yvalues = openpyxl.chart.Reference(sheet,min_col=beginCol+1+(i*5)+(j*2),min_row=4,max_col=beginCol+1+(i*5)+(j*2),max_row=sheet.max_row)
-                    seriesObj = openpyxl.chart.Series(yvalues, xvalues, title=str(uren[i]) + ' h')
+                    seriesObj = openpyxl.chart.Series(yvalues, xvalues, title=str(hours[i]) + ' h')
                     chartObj.append(seriesObj)
 
                 sheet.add_chart(chartObj, location)
 
-    def makeSeperateGraphs(workbook, graphNames, sheetNames, uren):
+    def makeSeperateGraphs(workbook, graphNames, sheetNames, hours):
+        """
+        creates the graphs mentioned in the graphNames list
+        :param workbook: Excel workbook
+        :param graphNames: list of graphs which need to be made
+        :param sheetNames: list of sheet names
+        :param hours: list of all the hours
+        """
         wb = workbook
 
         pid = wb[graphNames[0]]
@@ -99,10 +114,42 @@ class Grafieken():
                     y = 5
 
             for i in range(0, len(sheetNames), 1):
-                xvalues = openpyxl.chart.Reference(wb[sheetNames[i]], min_col=x, min_row=2, max_col=x, max_row=len(uren)+1)
-                yvalues = openpyxl.chart.Reference(wb[sheetNames[i]], min_col=y, min_row=2, max_col=y, max_row=len(uren)+1)
+                xvalues = openpyxl.chart.Reference(wb[sheetNames[i]], min_col=x, min_row=2, max_col=x, max_row=len(hours) + 1)
+                yvalues = openpyxl.chart.Reference(wb[sheetNames[i]], min_col=y, min_row=2, max_col=y, max_row=len(hours) + 1)
                 seriesObj = openpyxl.chart.Series(yvalues, xvalues, title=str(sheetNames[i]))
                 seriesObj.marker = openpyxl.chart.marker.Marker('circle')
                 chartObj.append(seriesObj)
 
             graphs[j].add_chart(chartObj)
+
+
+    def makeChartPsc(sheetname, workbook, times):
+        """
+        creates the IV graphs of the sample
+        :param sheetname: name of the sheet
+        :param workbook: Excel workbook
+        :param times: list of all the time frames in minutes
+        """
+
+        wb = workbook
+        sheet = wb[sheetname]
+
+        chartObj = openpyxl.chart.ScatterChart()
+        chartObj.x_axis.title = 'Voltage [V]'
+        chartObj.y_axis.title = 'Current [A]'
+        chartObj.x_axis.scaling.min = 0
+        chartObj.legend.position = 'b'
+
+        chartObj.title = 'IV'
+        chartObj.y_axis.scaling.max = 0
+        location = 'C20'
+
+        beginCol = 3
+
+        for i in range(0, len(times)):
+            xvalues = openpyxl.chart.Reference(sheet,min_col=beginCol+1+(i*3),min_row=4,max_col=beginCol+1+(i*3),max_row=sheet.max_row)
+            yvalues = openpyxl.chart.Reference(sheet,min_col=beginCol+(i*3),min_row=4,max_col=beginCol+(i*3),max_row=sheet.max_row)
+            seriesObj = openpyxl.chart.Series(yvalues, xvalues, title=str(times[i]) + ' min')
+            chartObj.append(seriesObj)
+
+        sheet.add_chart(chartObj, location)

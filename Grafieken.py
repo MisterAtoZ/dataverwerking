@@ -123,7 +123,7 @@ class Grafieken():
             graphs[j].add_chart(chartObj)
 
 
-    def makeChartPsc(sheetname, workbook, times):
+    def makeChartPscSm(sheetname, workbook, times, frame):
         """
         creates the IV graphs of the sample
         :param sheetname: name of the sheet
@@ -141,15 +141,21 @@ class Grafieken():
         chartObj.legend.position = 'b'
 
         chartObj.title = 'IV'
-        chartObj.y_axis.scaling.max = 0
         location = 'C20'
 
-        beginCol = 3
+        if frame == 'Psc':
+            beginCol = 3
+            chartObj.y_axis.scaling.max = 0
+        else:
+            beginCol = 1
 
         for i in range(0, len(times)):
             xvalues = openpyxl.chart.Reference(sheet,min_col=beginCol+1+(i*3),min_row=4,max_col=beginCol+1+(i*3),max_row=sheet.max_row)
             yvalues = openpyxl.chart.Reference(sheet,min_col=beginCol+(i*3),min_row=4,max_col=beginCol+(i*3),max_row=sheet.max_row)
-            seriesObj = openpyxl.chart.Series(yvalues, xvalues, title=str(times[i]) + ' min')
+            if frame == 'Psc':
+                seriesObj = openpyxl.chart.Series(yvalues, xvalues, title=str(times[i]) + ' min')
+            else:
+                seriesObj = openpyxl.chart.Series(yvalues, xvalues, title=str(times[i]) + ' h')
             chartObj.append(seriesObj)
 
         sheet.add_chart(chartObj, location)

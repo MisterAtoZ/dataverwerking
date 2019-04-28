@@ -7,7 +7,7 @@ import re
 
 class WorkbookLayout():
 
-    def makeSheets(workbook, dataEx, graphNames, sheetNames):
+    def makeSheets(workbook, dataEx, graphNames, sheetNames, eqeCb):
         """
         create the sheets in the Excel workbook
         :param workbook: Excel workbook
@@ -38,12 +38,13 @@ class WorkbookLayout():
                     sheet.cell(row=1, column=j).font = bold
                 sheet.cell(row=1, column=17).value = '%PID [%]'
                 sheet.cell(row=1, column=17).font = bold
-            if 'EQE_' + sheetNames[n] not in wb.sheetnames:
-                wb.create_sheet('EQE_' + sheetNames[n])
-                sheet = wb['EQE_' + sheetNames[n]]
-                sheet.cell(row=2, column=1).value = 'wavelength (Lambda)'
-                for j in range(0,93,1):
-                    sheet.cell(row=j+3, column=1).value = 280 + j*10
+            if(eqeCb):
+                if 'EQE_' + sheetNames[n] not in wb.sheetnames:
+                    wb.create_sheet('EQE_' + sheetNames[n])
+                    sheet = wb['EQE_' + sheetNames[n]]
+                    sheet.cell(row=2, column=1).value = 'wavelength (Lambda)'
+                    for j in range(0,93,1):
+                        sheet.cell(row=j+3, column=1).value = 280 + j*10
 
 
     def makeSheetsPsc(workbook, graphNames, sheetNames):
@@ -63,6 +64,17 @@ class WorkbookLayout():
             if sheetNames[n] not in wb.sheetnames:
                 wb.create_sheet(sheetNames[n])
 
+    def makeSheetsSm(workbook, sheetNames):
+        """
+        create the sheets in the Excel workbook
+        :param workbook: Excel workbook
+        :param sheetNames: list of the other sheet names, these are the sample names
+        """
+        wb = workbook
+        # create the module sheets
+        for n in range(0, len(sheetNames), 1):
+            if sheetNames[n] not in wb.sheetnames:
+                wb.create_sheet(sheetNames[n])
 
     def setIV(activeSheet, hour, drk, lgt):
         """
@@ -156,8 +168,12 @@ class WorkbookLayout():
         v = iv[1]
 
         # set minutes text
-        column1 = activeSheet.max_column + 2
-        column2 = activeSheet.max_column + 3
+        if activeSheet.max_column == 1:
+            column1 = activeSheet.max_column
+            column2 = activeSheet.max_column + 1
+        else:
+            column1 = activeSheet.max_column + 2
+            column2 = activeSheet.max_column + 3
         activeSheet.merge_cells(start_row=1, start_column=column1, end_row=1, end_column=column2)
         activeSheet.cell(row=1, column=column1).value = str(min) + ' min'
         activeSheet.cell(row=1, column=column1).font = bold
@@ -172,6 +188,40 @@ class WorkbookLayout():
             activeSheet.cell(row=j + 3, column=column1).value = i[j]
             activeSheet.cell(row=j + 3, column=column2).value = v[j]
 
+
+    def setIVSm(activeSheet, hour, iv):
+        """
+        set the IV values of 1 time frame in 1 sheet
+        :param activeSheet: Excel sheet
+        :param hour: integer of the hours value which is printed above the data
+        :param iv: list of the IV values
+        """
+        # fonts
+        bold = Font(bold=True)
+
+        i = iv[0]
+        v = iv[1]
+
+        # set hours text
+        if activeSheet.max_column == 1:
+            column1 = activeSheet.max_column
+            column2 = activeSheet.max_column + 1
+        else:
+            column1 = activeSheet.max_column + 2
+            column2 = activeSheet.max_column + 3
+        activeSheet.merge_cells(start_row=1, start_column=column1, end_row=1, end_column=column2)
+        activeSheet.cell(row=1, column=column1).value = str(hour) + ' h'
+        activeSheet.cell(row=1, column=column1).font = bold
+        activeSheet.cell(row=1, column=column1).alignment = Alignment(horizontal='center')
+
+        # set iv text
+        activeSheet.cell(row=2, column=column1).value = 'I'
+        activeSheet.cell(row=2, column=column2).value = 'V'
+
+        # set data
+        for j in range(0, len(i), 1):
+            activeSheet.cell(row=j + 3, column=column1).value = i[j]
+            activeSheet.cell(row=j + 3, column=column2).value = v[j]
 
     def natural_sort(l):
         """

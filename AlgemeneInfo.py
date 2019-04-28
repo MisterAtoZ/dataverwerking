@@ -15,6 +15,12 @@ class AlgemeneInfo():
         data = dataEx['data-exchange']
         generalSheet = wb['General']
 
+        # calculate the row with the first stressed hour
+        for i in range(1, generalSheet.max_row, 1):
+            if generalSheet.cell(row=i, column=5).value == 'Acc. Hours  [h]':
+                beginRow = i + 2
+                print('beginRow : ' + str(beginRow))
+
         # calculate hours
         previousHour = 0
         hours = [0]
@@ -23,8 +29,7 @@ class AlgemeneInfo():
         #   No : break out of for loop because no hours come after
         #   Yes : check if an hour is filled in. Yes : don't have to calculate hour but still append to list
         #                                        No : calculate hour and append to list
-        for i in range(20, generalSheet.max_row, 1): #26
-            print(generalSheet.cell(row=i, column=1).value)
+        for i in range(beginRow, generalSheet.max_row, 1):
             if generalSheet.cell(row=i, column=1).value == None:
                 break
             if generalSheet.cell(row=i, column=5).value != None:
@@ -50,7 +55,6 @@ class AlgemeneInfo():
         # fill in dataEx data in correct sheets
         for n in range(0, len(sheetNames), 1):
             sheet = wb[sheetNames[n]]
-            #print('----NEXT ROW----')
             nextRow = 1
             # calculate the first empty row
             for row in range(1, sheet.max_row+2, 1):
@@ -58,10 +62,8 @@ class AlgemeneInfo():
                     nextRow = row
                     break
             begin = nextRow
-            #print('----INVULLEN----')
             # fill in the data from dataEx
             for rows in range(begin, 2+len(hours), 1):
-                print('hours' + str(hours))
                 hourInt = int(round(hours[rows-2],0))
                 hourRounded = round(hours[rows-2],2)
                 if hourInt <= int(maxHour):
@@ -70,7 +72,6 @@ class AlgemeneInfo():
                         if (str(data.cell(row=i, column=1).value) == str(hourInt)) or (str(data.cell(row=i, column=1).value) == str(subfolders[rows-2])):
                             for j in range(i,i+len(sheetNames),1):
                                 if (str(data.cell(row=j, column=2).value) == sheetNames[n]):
-                                    print(hourInt)
                                     for k in range(2, 13, 1):
                                         sheet.cell(row=nextRow, column=k).value = data.cell(row=j, column=k + 7).value
                                     if (sheet.cell(row=nextRow,column=4).value is not None) and (sheet.cell(row=2, column=4).value is not None):

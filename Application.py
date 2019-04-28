@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import ttk
-import csv
 import Main
 
 class Application(tk.Frame):
@@ -15,213 +14,379 @@ class Application(tk.Frame):
         self.pack()
         self.create_widgets()
 
-
     def create_widgets(self):
         """
         create the different widgets of the gui and put them in rows and columns
         """
+        self.grid()
+        self.pack(fill="both", expand=True)
+
+        #tabs
+        tabControl = ttk.Notebook(self)
+        tabControl.pack(expand=1, fill='both')
+
+        tabBifi = ttk.Frame(tabControl)
+        tabControl.add(tabBifi, text='BIFI')
+
+        tabPsc = ttk.Frame(tabControl)
+        tabControl.add(tabPsc, text='PSC')
+
+        tabSm = ttk.Frame(tabControl)
+        tabControl.add(tabSm, text='SM')
+
+
         #variables
         self.hourVar = tk.IntVar()
-        self.nameVar = tk.StringVar()
-        self.amountVar = tk.IntVar()
-        self.F = tk.IntVar()
-        self.B = tk.IntVar()
-        self.R = tk.IntVar()
         self.fileVar = tk.StringVar()
         self.comboVar = tk.StringVar()
-        self.comboList = []
-        self.configContent = []
-        self.samples = []
+        self.comboList = []     # nr + configContent
+        self.configContent = [] # filepath
+        self.samples = []       # frame + filepath
+        self.ivCb = tk.IntVar()
+        self.eqeCb = tk.IntVar()
+        self.photoCb = tk.IntVar()
+
+        self.filePsc = tk.StringVar()
+        self.comboPsc = tk.StringVar()
+        self.comboListPsc = ['']
+        self.configPsc = []
+        self.samplesPsc = []
+
+        self.panelVar = tk.IntVar()
+        self.fileSm = tk.StringVar()
+        self.comboSm = tk.StringVar()
+        self.comboListSm = [''] # nr + configContent
+        self.configSm = []      # filepath
 
         #set variables if config file excists
         try:
             self.readFile()
         except IOError:
-            self.comboList.append('')
+            self.comboList.append('') # voor Psc en Sm ook -----------------------------
             pass
 
         #labels
-        self.hourLabel = tk.Label(self, text='Maximum  duration of stressing? [h]').grid(sticky='W', row=0)
-        self.nameLabel = tk.Label(self, text='PV-cells names').grid(sticky='W', row=1)
-        self.amountLabel = tk.Label(self, text='Number of samples').grid(sticky='W', row=1, column=2)
-        self.sideLabel = tk.Label(self, text='Sides').grid(sticky='W', row=1, column=4)
-        self.fileLabel = tk.Label(self, text='Base file').grid(sticky='W',row=2)
-        self.errorLabel = tk.Label(self, text='', fg='red')
-        self.errorLabel.grid(sticky='W', row=4)
+        self.hourLabel = tk.Label(tabBifi, text='Maximum  duration of stressing? [h]').grid(sticky='W', row=0, column=3,columnspan=2)
+        self.configLabel = tk.Label(tabBifi, text='Select previous configuration').grid(sticky='W', row=1, column=3)
+        self.fileLabel = tk.Label(tabBifi, text='Excel file').grid(sticky='W',row=2, column=3)
+        self.errorLabel = tk.Label(tabBifi, text='', fg='red')
+        self.errorLabel.grid(sticky='W', row=4, column=1,columnspan=3)
+
+        self.configLabelPsc = tk.Label(tabPsc, text='Select previous configuration').grid(sticky='W', row=0, column=3)
+        self.fileLabelPsc = tk.Label(tabPsc, text='Excel file').grid(sticky='W', row=1, column=3)
+        self.errorLabelPsc = tk.Label(tabPsc, text='', fg='red')
+        self.errorLabelPsc.grid(sticky='W', row=2, column=1, columnspan=3)
+
+        self.panelLabel = tk.Label(tabSm, text='Number of panels').grid(sticky='W', row=0, column=3,columnspan=2)
+        self.configLabelSm = tk.Label(tabSm, text='Select previous configuration').grid(sticky='W', row=1, column=3)
+        self.fileLabelSm = tk.Label(tabSm, text='Excel file').grid(sticky='W', row=2, column=3)
+        self.errorLabelSm = tk.Label(tabSm, text='', fg='red')
+        self.errorLabelSm.grid(sticky='W', row=4, column=1, columnspan=3)
 
         #entries
-        self.hourInput = tk.Entry(self, textvariable=self.hourVar)
-        self.hourInput.grid(sticky='W', row=0, column=1)
-        self.nameInput = tk.Entry(self, textvariable=self.nameVar)
-        self.nameInput.grid(sticky='W', row=1, column=1)
-        self.amountInput = tk.Entry(self, textvariable=self.amountVar)
-        self.amountInput.grid(sticky='W', row=1, column=3)
-        self.fileInput = tk.Entry(self,textvariable=self.fileVar)
-        self.fileInput.grid(sticky='WE',row=2,column=1,columnspan=7)
+        self.hourInput = tk.Entry(tabBifi, textvariable=self.hourVar)
+        self.hourInput.grid(sticky='WE', row=0, column=0,columnspan=3,padx=5)
+        self.fileInput = tk.Entry(tabBifi,textvariable=self.fileVar)
+        self.fileInput.grid(row=2,column=0,columnspan=3,sticky='WE',padx=5)
+
+        self.fileInputPsc = tk.Entry(tabPsc, textvariable=self.filePsc)
+        self.fileInputPsc.grid(row=1, column=0, columnspan=3, sticky='WE', padx=5)
+
+        self.panelInput = tk.Entry(tabSm, textvariable=self.panelVar)
+        self.panelInput.grid(sticky='WE', row=0, column=0, columnspan=3, padx=5)
+        self.fileInputSm = tk.Entry(tabSm, textvariable=self.fileSm)
+        self.fileInputSm.grid(row=2, column=0, columnspan=3, sticky='WE', padx=5)
 
         #checkboxes
-        self.sideF = tk.Checkbutton(self, text="F", variable=self.F, onvalue=1, offvalue=0).grid(row=1, column=5, sticky='W')
-        self.sideB = tk.Checkbutton(self, text="B", variable=self.B, onvalue=1, offvalue=0).grid(row=1, column=6, sticky='W')
-        self.sideR = tk.Checkbutton(self, text="R", variable=self.R, onvalue=1, offvalue=0).grid(row=1, column=7, sticky='W')
+        self.iv = tk.Checkbutton(tabBifi, text="IV", variable=self.ivCb, onvalue=1, offvalue=0).grid(row=3, column=0, sticky='W')
+        self.eqe = tk.Checkbutton(tabBifi, text="EQE", variable=self.eqeCb, onvalue=1, offvalue=0).grid(row=3, column=1, sticky='W')
+        self.photo = tk.Checkbutton(tabBifi, text="Photo", variable=self.photoCb, onvalue=1, offvalue=0).grid(row=3, column=2,sticky='W')
 
         #buttons
-        #self.stopBtn = tk.Button(self, text='Stop', command=quit).grid(sticky='W',row=3, pady=4, padx=5)
-        self.beginBtn = tk.Button(self, text='Begin', command=self.begin).grid(sticky='W',row=3,column=2, pady=4, padx=20)
-        self.fileBtn = tk.Button(self, text='Pick file', command=self.pickFile).grid(sticky='W',row=3, column=1, pady=4)
-        self.rmBtn = tk.Button(self, text='Remove config', command=self.remove).grid(sticky='W',row=3, column=1,pady=4, padx=(70,0))
+        self.beginBtn = tk.Button(tabBifi, text='Begin', command=self.beginBifi).grid(sticky='W',row=4,column=0,padx=5)
+        self.fileBtn = tk.Button(tabBifi, text='Pick file')
+        self.fileBtn.bind('<ButtonRelease-1>', self.pickFile)
+        self.fileBtn.grid(sticky='W', row=2, column=4)
+        self.rmBtn = tk.Button(tabBifi, text='Remove config')
+        self.rmBtn.bind('<ButtonRelease-1>', self.remove)
+        self.rmBtn.grid(sticky='W', row=1, column=4)
+
+        self.beginBtnPsc = tk.Button(tabPsc, text='Begin', command=self.beginPsc).grid(sticky='W', row=2, column=0, padx=5)
+        self.fileBtnPsc = tk.Button(tabPsc, text='Pick file')
+        self.fileBtnPsc.bind('<ButtonRelease-1>', self.pickFile)
+        self.fileBtnPsc.grid(sticky='W', row=1, column=4)
+        self.rmBtnPsc = tk.Button(tabPsc, text='Remove config')
+        self.rmBtnPsc.bind('<ButtonRelease-1>', self.remove)
+        self.rmBtnPsc.grid(sticky='W', row=0, column=4)
+
+        self.beginBtnSm = tk.Button(tabSm, text='Begin', command=self.beginSm).grid(sticky='W', row=4, column=0, padx=5)
+        self.fileBtnSm = tk.Button(tabSm, text='Pick file')
+        self.fileBtnSm.bind('<ButtonRelease-1>', self.pickFile)
+        self.fileBtnSm.grid(sticky='W', row=2, column=4)
+        self.rmBtnSm = tk.Button(tabSm, text='Remove config')
+        self.rmBtnSm.bind('<ButtonRelease-1>', self.remove)
+        self.rmBtnSm.grid(sticky='W', row=1, column=4)
 
         #combobox
-        self.combo = ttk.Combobox(self,textvariable=self.comboVar,values=self.comboList)
-        self.combo.grid(row=0,column=3)
+        self.combo = ttk.Combobox(tabBifi,textvariable=self.comboVar,values=self.comboList)
+        self.combo.grid(row=1, column=0,columnspan=3, sticky='WE',padx=5)
         self.combo.current(len(self.comboList)-1)
-        self.combo.bind('<<ComboboxSelected>>', self.select)  # binding of user selection with a custom callback
+        self.combo.bind('<<ComboboxSelected>>', self.select)
 
+        self.comboP = ttk.Combobox(tabPsc,textvariable=self.comboPsc,values=self.comboListPsc)
+        self.comboP.grid(row=0, column=0,columnspan=3, sticky='WE',padx=5)
+        self.comboP.current(len(self.comboListPsc)-1)
+        self.comboP.bind('<<ComboboxSelected>>', self.select)
 
-    def remove(self):
+        self.comboS = ttk.Combobox(tabSm, textvariable=self.comboSm, values=self.comboListSm)
+        self.comboS.grid(row=1, column=0, columnspan=3, sticky='WE', padx=5)
+        self.comboS.current(len(self.comboListSm) - 1)
+        self.comboS.bind('<<ComboboxSelected>>', self.select)
+
+        #configure column 2 to stretch with the window
+        tabBifi.grid_columnconfigure(2, weight=1)
+        tabPsc.grid_columnconfigure(2, weight=1)
+        tabSm.grid_columnconfigure(2, weight=1)
+
+    def getFrame(self, caller):
+        if 'frame.' in str(caller):
+            return 'Bifi'
+        if 'frame2.' in str(caller):
+            return 'Psc'
+        if 'frame3.' in str(caller):
+            return 'Sm'
+
+    def remove(self, event):
         """
         removes a configuration form the config.txt file
         is called by rmBtn
         """
-        i = int(self.comboVar.get().split(' - ')[0])
-        with open('config.txt','r') as file:
-            filedata = file.read()
-        filedata= filedata.replace(self.configContent[i] + '<<>>', '')
-        with open('config.txt', 'w') as file:
-            file.write(filedata)
+        caller = event.widget
+        frame = self.getFrame(caller)
 
+        if frame == 'Bifi':
+            i = int(self.comboVar.get().split(' - ')[0]) - 1
+            with open('config.txt','r') as file:
+                filedata = file.read()
+            filedata= filedata.replace('Bifi|' + self.configContent[i] + '\n', '')
+            with open('config.txt', 'w') as file:
+                file.write(filedata)
+        if frame == 'Psc':
+            i = int(self.comboPsc.get().split(' - ')[0]) - 1
+            with open('config.txt', 'r') as file:
+                filedata = file.read()
+            filedata = filedata.replace('Psc|' + self.configPsc[i] + '\n', '')
+            with open('config.txt', 'w') as file:
+                file.write(filedata)
 
-    def pickFile(self):
+    def pickFile(self, event):
         """
         select a .xlsx file via the filedialog
         is called by fileBtn
         """
+        caller = event.widget
+        frame = self.getFrame(caller)
+
         self.filename = tk.filedialog.askopenfilename(initialdir="/", title="Select file",filetypes=(("xlsx files", "*.xlsx"), ("all files", "*.*")))
         if self.filename != None:
-            self.fileVar.set(self.filename)
-
+            if frame == 'Bifi':
+                self.fileVar.set(self.filename)
+            if frame == 'Psc':
+                self.filePsc.set(self.filename)
+            if frame == 'Sm':
+                self.fileSm.set(self.filename)
 
     def select(self, event):
         """
         select a configuration with the comboBox and set the configuration variables in the gui
         """
-        print(self.comboVar.get())
-        i = int(self.comboVar.get().split(' - ')[0])
-        self.setVars(i)
-
+        caller = event.widget
+        frame = self.getFrame(caller)
+        if frame == 'Bifi':
+            print(self.comboVar.get())
+            path = self.comboVar.get().split(' - ')[1]
+            self.setVars('Bifi', path)
+        if frame == 'Psc':
+            print(self.comboPsc.get())
+            path = self.comboPsc.get().split(' - ')[1]
+            self.setVars('Psc', path)
+        if frame == 'Sm':
+            print(self.comboSm.get())
+            path = self.comboSm.get().split(' - ')[1]
+            self.setVars('Sm', path)
 
     def readFile(self):
         """
         read the config.txt file and put the configurations in the comboBox and in the gui
         """
-        # with open ('config.csv', 'r') as f:
-        #     data = f.read()
-        #     reader = csv.reader(f)
-        #     print(reader)
-        #     print('data:' + data + '-----')
-        #     if data != '':
-        #         print('in if')
-        #         lineCount=0
-        #         for row in reader:
-        #             print('row:' + row)
-        #             if lineCount == 0:
-        #                 print('0:' + row)
-        #                 lineCount+=1
-        #             else:
-        #                 print(row + ';')
-        #                 if row != '':
-        #
-        #                     #self.samples.append(row)
-        #                     self.configContent.append(row)
-        #                     self.setVars(lineCount-1)
-        #                     self.comboVar.set(str(lineCount-1)+' - '+self.nameVar.get()+'_'+str(self.amountVar.get()))
-        #                     self.comboList.append(self.comboVar.get())
-        #                     lineCount+=1
-        #     else:
-        #         self.comboList.append('')
         with open('config.txt', 'r') as f:
             data = f.read()
             if data != '':
-                self.samples = data.split('<<>>')
-                for i in range(0, len(self.samples) - 1, 1):
-                    self.configContent.append(self.samples[i])
-                    self.setVars(i)
-                    self.comboVar.set(str(i) + ' - ' + self.nameVar.get() + '_' + str(self.amountVar.get()))
-                    self.comboList.append(self.comboVar.get())
+                self.sampels = data.split('\n')
+                for i in range(0, len(self.sampels) - 1, 1):
+                    frame = self.sampels[i].split('|')[0]
+                    path = self.sampels[i].split('|')[1]
+                    if frame == 'Bifi':
+                        self.configContent.append(path)
+                        self.setVars(frame, path)
+                        self.comboVar.set(str(len(self.configContent)) + ' - ' + self.fileVar.get())
+                        self.comboList.append(self.comboVar.get())
+                    if frame == 'Psc':
+                        self.configPsc.append(path)
+                        self.setVars(frame, path)
+                        self.comboPsc.set(str(len(self.configPsc)) + ' - ' + self.filePsc.get())
+                        self.comboListPsc.append(self.comboPsc.get())
             else:
                 self.comboList.append('')
 
 
-    def setVars(self, i):
+    def setVars(self, frame, path):
         """
         set the variables from the configuration from the comboBox in the gui
         :param i: the number of the configuration
         """
-        settings = self.samples[i].split('|') #configContent[i].split(',')
-        print(str(settings))
-        self.nameVar.set(settings[0])
-        self.amountVar.set(settings[1])
-        self.F.set(settings[2])
-        self.B.set(settings[3])
-        self.R.set(settings[4])
-        self.fileVar.set(settings[5])
+        if frame == 'Bifi':
+            self.fileVar.set(path)
+        if frame == 'Psc':
+            self.filePsc.set(path)
+        if frame == 'Sm':
+            self.filePsc.set(path)
 
-
-    def begin(self):
+    def beginBifi(self):
         """
-        check if all variables are set correctly and starts the begin function of the Main class
+        check if all variables are set correctly and starts the beginBifi function of the Main class
         is called by beginBtn
         """
-        #sides
-        sides = []
-        if self.F.get() != 0:
-            sides.append('F')
-        if self.B.get() != 0:
-            sides.append('B')
-        if self.R.get() != 0:
-            sides.append('R')
-        print('sides : ' + str(sides))
-
         #wbName
         filePath=''
         filenameSplit = self.fileInput.get().split('/')
         for i in range(0,len(filenameSplit)-1,1):
             filePath = filePath + str(filenameSplit[i]) + '/'
         wbName = filenameSplit[len(filenameSplit)-1]
-
         # check if all variables are set correctly
         # yes: begin
         # no: show error message
         if self.hourInput.get() == "":
-            self.errorLabel.config(text='Error : Missing hour')
-        elif self.nameInput.get() == "":
-            self.errorLabel.config(text='Error : Missing name')
-        elif self.amountInput.get() == "":
-            self.errorLabel.config(text='Error : Missing number of samples')
+            self.errorLabel.config(text='Error : No hour')
         elif self.hourInput.get().isdigit():
             print('uur ' + str(self.hourInput.get()))
             # if begin function is done : show 'file saved' and save the configuration if not already in config.txt
-            if Main.Main.begin(self, self.nameInput.get(), self.hourInput.get(), self.amountInput.get(), sides, wbName, filePath):
-                self.errorLabel.config(text='File saved')
-                configText = self.nameInput.get() + '|' + str(self.amountInput.get()) + '|' + str(self.F.get()) + '|' + \
-                              str(self.B.get()) + '|' + str(self.R.get()) + '|' + self.fileInput.get()
-                inFile = False
-                for i in range(0, len(self.configContent), 1):
-                    if configText == self.configContent[i]:
-                        inFile = True
+            if(self.fileInput.get().endswith('.xlsx')):
+                self.errorLabel.config(text='Running...')
+                self.errorLabel.update()
+                if Main.Main.beginBifi(self, self.hourInput.get(), wbName, filePath, self.ivCb.get(), self.eqeCb.get(), self.photoCb.get()):
+                    self.errorLabel.config(text='File saved')
 
-                if inFile == False:
-                    # with open('config.csv', mode='a+') as config:
-                    #     fileWriter = csv.writer(config, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-                    #     fileWriter.writerow([self.nameInput.get(), str(self.amountInput.get()), str(self.F.get()), \
-                    #                          str(self.B.get()), str(self.R.get()), self.fileInput.get()])
-                    with open('config.txt','a+') as f:
-                        f.write(configText)
-                        f.write('<<>>')
+                    configText = 'Bifi|' + self.fileInput.get()
+
+                    # check if the file is already in config.txt and add it if not
+                    inFile = False
+                    for i in range(0, len(self.configContent), 1):
+                        if configText == 'Bifi|' + self.configContent[i]:
+                            inFile = True
+
+                    if inFile == False:
+                        with open('config.txt','a+') as f:
+                            f.write(configText)
+                            f.write('\n')
+                            self.configContent.append(filePath + wbName)
+                else:
+                    self.errorLabel.config(text='Error: Something went wrong')
             else:
-                self.errorLabel.config(text='Something went wrong')
+                self.errorLabel.config(text='Error : Not a .xlsx file')
         else:
             self.errorLabel.config(text='Error : Hour must be a number')
 
+    def beginPsc(self):
+        """
+        check if all variables are set correctly and starts the beginPsc function of the Main class
+        is called by beginBtnPsc
+        """
+        #wbName
+        filePath=''
+        filenameSplit = self.fileInputPsc.get().split('/')
+        for i in range(0,len(filenameSplit)-1,1):
+            filePath = filePath + str(filenameSplit[i]) + '/'
+        wbName = filenameSplit[len(filenameSplit)-1]
+        # check if all variables are set correctly
+        # yes: begin
+        # no: show error message
+
+        # if begin function is done : show 'file saved' and save the configuration if not already in config.txt
+        if(self.fileInputPsc.get().endswith('.xlsx')):
+            self.errorLabelPsc.config(text='Running...')
+            self.errorLabelPsc.update()
+            if Main.Main.beginPsc(self, wbName, filePath):
+                self.errorLabelPsc.config(text='File saved')
+
+                configText = 'Psc|' + self.fileInputPsc.get()
+
+                # check if the file is already in config.txt and add it if not
+                inFile = False
+                for i in range(0, len(self.configPsc), 1):
+                    if configText == 'Psc|' + self.configPsc[i]:
+                        inFile = True
+
+                if inFile == False:
+                    with open('config.txt','a+') as f:
+                        f.write(configText)
+                        f.write('\n')
+                        self.configPsc.append(filePath + wbName)
+            else:
+                self.errorLabelPsc.config(text='Error: Something went wrong')
+        else:
+            self.errorLabelPsc.config(text='Error : Not a .xlsx file')
+
+    def beginSm(self):
+        """
+        check if all variables are set correctly and starts the beginSm function of the Main class
+        is called by beginBtnSm
+        """
+        #wbName
+        filePath=''
+        filenameSplit = self.fileInputSm.get().split('/')
+        for i in range(0,len(filenameSplit)-1,1):
+            filePath = filePath + str(filenameSplit[i]) + '/'
+        wbName = filenameSplit[len(filenameSplit)-1]
+        # check if all variables are set correctly
+        # yes: begin
+        # no: show error message
+
+        if self.panelInput.get() == "":
+            self.errorLabelSm.config(text='Error : No panel')
+        elif self.panelInput.get().isdigit():
+            if int(self.panelInput.get()) > 0 and int(self.panelInput.get()) <= 6:
+                # if begin function is done : show 'file saved' and save the configuration if not already in config.txt
+                if(self.fileInputSm.get().endswith('.xlsx')):
+                    self.errorLabelSm.config(text='Running...')
+                    self.errorLabelSm.update()
+                    if Main.Main.beginSm(self, self.panelInput.get(), wbName, filePath):
+                        self.errorLabelSm.config(text='File saved')
+
+                        # configText = 'Sm|' + self.fileInputSm.get()
+                        #
+                        # # check if the file is already in config.txt and add it if not
+                        # inFile = False
+                        # for i in range(0, len(self.configSm), 1):
+                        #     if configText == 'Sm|' + self.configSm[i]:
+                        #         inFile = True
+                        #
+                        # if inFile == False:
+                        #     with open('config.txt','a+') as f:
+                        #         f.write(configText)
+                        #         f.write('\n')
+                        #         self.configSm.append(filePath + wbName)
+
+                    else:
+                        self.errorLabelSm.config(text='Error: Something went wrong')
+                else:
+                    self.errorLabelSm.config(text='Error : Not a .xlsx file')
+            else:
+                self.errorLabelSm.config(text='Error : Panel must be a number in the range 1 to 6')
+        else:
+            self.errorLabelSm.config(text='Error : Panel must be a number in the range 1 to 6')
+
 root = tk.Tk()
+root.title("PID data automation")
 app = Application(master=root)
 app.mainloop()

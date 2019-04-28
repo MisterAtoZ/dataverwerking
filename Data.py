@@ -45,11 +45,26 @@ class Data():
 
             for j in range(0, len(splitted), jump):
                 if(j+1<len(splitted)):
-                    # print('j: ' + str(j))
-                    # print(splitted[j])
-                    # print(splitted[j+1])
                     i.append(float(splitted[j]))
                     v.append(float(splitted[j+1]))
+
+            iv = [i, v]
+
+            return iv
+
+    def getDataListSm(filename):
+        with open(filename, 'r') as file:
+            data = file.read()
+            data = data.replace(",", ".")
+            rows = data.split('\n')
+            v = []
+            i = []
+
+            for j in rows:
+                if j != '':
+                    splitted = j.split(';')
+                    i.append(float(splitted[1]))
+                    v.append(float(splitted[0]))
 
             iv = [i, v]
 

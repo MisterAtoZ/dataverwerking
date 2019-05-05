@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import ttk
+from tkinter import *
+from PIL import ImageTk, Image
 import Main
 
 class Application(tk.Frame):
@@ -21,19 +23,38 @@ class Application(tk.Frame):
         self.grid()
         self.pack(fill="both", expand=True)
 
+        #styles
+        bgColor = '#444444' #29648A'
+        fgColor = '#FFFFFF' #DFDFDF'
+        red = '#f91919'
+        gui_style = ttk.Style()
+        #gui_style.configure('My.TButton', background='#2E9CCA')
+        gui_style.map("My.TButton",
+    #foreground=[('pressed', 'red'), ('active', bgColor)],
+    background=[('pressed', '!disabled', bgColor), ('active', bgColor), ('!active', bgColor)]
+    )
+        gui_style.configure('My.TFrame', background=bgColor)
+        gui_style.configure('My.TNotebook', background=fgColor)
+        gui_style.configure('My.TLabel', background=bgColor, foreground=fgColor)
+        gui_style.configure('My.TCheckbutton', background=bgColor, foreground=fgColor)
+        gui_style.configure('My.TLabelframe.Label', background=bgColor, foreground=fgColor)
+        #gui_style.configure('My.TLabelframe.Label', background=bgColor)
+
+        #gui_style.configure('My.TELabel', background='#DDDDDD', foreground="red")
+
+
         #tabs
-        tabControl = ttk.Notebook(self)
+        tabControl = ttk.Notebook(self, style='My.TNotebook')
         tabControl.pack(expand=1, fill='both')
 
-        tabBifi = ttk.Frame(tabControl)
-        tabControl.add(tabBifi, text='BIFI')
+        tabBifi = ttk.Frame(tabControl, style='My.TFrame')
+        tabControl.add(tabBifi, text='Loana')
 
-        tabPsc = ttk.Frame(tabControl)
-        tabControl.add(tabPsc, text='PSC')
+        tabPsc = ttk.Frame(tabControl, style='My.TFrame')
+        tabControl.add(tabPsc, text='Thin film')
 
-        tabSm = ttk.Frame(tabControl)
-        tabControl.add(tabSm, text='SM')
-
+        tabSm = ttk.Frame(tabControl, style='My.TFrame')
+        tabControl.add(tabSm, text='Switch matrix')
 
         #variables
         self.hourVar = tk.IntVar()
@@ -66,66 +87,67 @@ class Application(tk.Frame):
             pass
 
         #labels
-        self.hourLabel = tk.Label(tabBifi, text='Maximum  duration of stressing? [h]').grid(sticky='W', row=0, column=3,columnspan=2)
-        self.configLabel = tk.Label(tabBifi, text='Select previous configuration').grid(sticky='W', row=1, column=3)
-        self.fileLabel = tk.Label(tabBifi, text='Excel file').grid(sticky='W',row=2, column=3)
-        self.errorLabel = tk.Label(tabBifi, text='', fg='red')
-        self.errorLabel.grid(sticky='W', row=4, column=1,columnspan=3)
+        self.hourLabel = ttk.Label(tabBifi, text='Maximum  duration of stressing? [h]', style='My.TLabel').grid(sticky='W', row=0, column=3,columnspan=2)
+        self.configLabel = ttk.Label(tabBifi, text='Select previous configuration', style='My.TLabel').grid(sticky='W', row=1, column=3)
+        self.fileLabel = ttk.Label(tabBifi, text='Excel file', style='My.TLabel').grid(sticky='W',row=2, column=3)
+        self.errorLabel = ttk.Label(tabBifi, text='', background=bgColor, foreground=red)
+        self.errorLabel.grid(sticky='W', row=4, column=2,columnspan=3)
 
-        self.configLabelPsc = tk.Label(tabPsc, text='Select previous configuration').grid(sticky='W', row=0, column=3)
-        self.fileLabelPsc = tk.Label(tabPsc, text='Excel file').grid(sticky='W', row=1, column=3)
-        self.errorLabelPsc = tk.Label(tabPsc, text='', fg='red')
+        self.configLabelPsc = ttk.Label(tabPsc, text='Select previous configuration', style='My.TLabel').grid(sticky='W', row=0, column=3)
+        self.fileLabelPsc = ttk.Label(tabPsc, text='Excel file', style='My.TLabel').grid(sticky='W', row=1, column=3)
+        self.errorLabelPsc = ttk.Label(tabPsc, text='', background=bgColor, foreground=red)
         self.errorLabelPsc.grid(sticky='W', row=2, column=1, columnspan=3)
 
-        self.panelLabel = tk.Label(tabSm, text='Number of panels').grid(sticky='W', row=0, column=3,columnspan=2)
-        self.configLabelSm = tk.Label(tabSm, text='Select previous configuration').grid(sticky='W', row=1, column=3)
-        self.fileLabelSm = tk.Label(tabSm, text='Excel file').grid(sticky='W', row=2, column=3)
-        self.errorLabelSm = tk.Label(tabSm, text='', fg='red')
+        # self.panelLabel = tk.Label(tabSm, text='Number of panels').grid(sticky='W', row=0, column=3,columnspan=2)
+        self.configLabelSm = ttk.Label(tabSm, text='Select previous configuration', style='My.TLabel').grid(sticky='W', row=1, column=3)
+        self.fileLabelSm = ttk.Label(tabSm, text='Excel file', style='My.TLabel').grid(sticky='W', row=2, column=3)
+        self.errorLabelSm = ttk.Label(tabSm, text='', background=bgColor, foreground=red)
         self.errorLabelSm.grid(sticky='W', row=4, column=1, columnspan=3)
 
         #entries
-        self.hourInput = tk.Entry(tabBifi, textvariable=self.hourVar)
-        self.hourInput.grid(sticky='WE', row=0, column=0,columnspan=3,padx=5)
-        self.fileInput = tk.Entry(tabBifi,textvariable=self.fileVar)
-        self.fileInput.grid(row=2,column=0,columnspan=3,sticky='WE',padx=5)
+        self.hourInput = ttk.Entry(tabBifi, textvariable=self.hourVar)
+        self.hourInput.grid(sticky='WE', row=0, column=0,columnspan=3,padx=5, pady=5)
+        self.fileInput = ttk.Entry(tabBifi,textvariable=self.fileVar)
+        self.fileInput.grid(row=2,column=0,columnspan=3,sticky='WE',padx=5, pady=5)
 
-        self.fileInputPsc = tk.Entry(tabPsc, textvariable=self.filePsc)
+        self.fileInputPsc = ttk.Entry(tabPsc, textvariable=self.filePsc)
         self.fileInputPsc.grid(row=1, column=0, columnspan=3, sticky='WE', padx=5)
 
-        self.panelInput = tk.Entry(tabSm, textvariable=self.panelVar)
-        self.panelInput.grid(sticky='WE', row=0, column=0, columnspan=3, padx=5)
-        self.fileInputSm = tk.Entry(tabSm, textvariable=self.fileSm)
+        # self.panelInput = tk.Entry(tabSm, textvariable=self.panelVar)
+        # self.panelInput.grid(sticky='WE', row=0, column=0, columnspan=3, padx=5)
+        self.fileInputSm = ttk.Entry(tabSm, textvariable=self.fileSm)
         self.fileInputSm.grid(row=2, column=0, columnspan=3, sticky='WE', padx=5)
 
         #checkboxes
-        self.iv = tk.Checkbutton(tabBifi, text="IV", variable=self.ivCb, onvalue=1, offvalue=0).grid(row=3, column=0, sticky='W')
-        self.eqe = tk.Checkbutton(tabBifi, text="EQE", variable=self.eqeCb, onvalue=1, offvalue=0).grid(row=3, column=1, sticky='W')
-        self.photo = tk.Checkbutton(tabBifi, text="Photo", variable=self.photoCb, onvalue=1, offvalue=0).grid(row=3, column=2,sticky='W')
+        self.iv = ttk.Checkbutton(tabBifi, text="IV", variable=self.ivCb, onvalue=1, offvalue=0, style='My.TCheckbutton').grid(row=3, column=0, sticky='W', padx=5)
+        self.eqe = ttk.Checkbutton(tabBifi, text="EQE", variable=self.eqeCb, onvalue=1, offvalue=0, style='My.TCheckbutton').grid(row=3, column=1, sticky='W')
+        self.photo = ttk.Checkbutton(tabBifi, text="Photo", variable=self.photoCb, onvalue=1, offvalue=0, style='My.TCheckbutton').grid(row=3, column=2,sticky='W')
 
         #buttons
-        self.beginBtn = tk.Button(tabBifi, text='Begin', command=self.beginBifi).grid(sticky='W',row=4,column=0,padx=5)
-        self.fileBtn = tk.Button(tabBifi, text='Pick file')
+        self.beginBtn = ttk.Button(tabBifi, text='Begin', command=self.beginBifi, style='My.TButton').grid(sticky='W',row=4,column=0,padx=5, pady=5, columnspan=2)
+        self.fileBtn = ttk.Button(tabBifi, text='Pick file', style='My.TButton')
         self.fileBtn.bind('<ButtonRelease-1>', self.pickFile)
-        self.fileBtn.grid(sticky='W', row=2, column=4)
-        self.rmBtn = tk.Button(tabBifi, text='Remove config')
+        self.fileBtn.grid(sticky='WE', row=2, column=4, padx=5)
+        self.rmBtn = ttk.Button(tabBifi, text='Remove config', style='My.TButton')
         self.rmBtn.bind('<ButtonRelease-1>', self.remove)
-        self.rmBtn.grid(sticky='W', row=1, column=4)
+        self.rmBtn.grid(sticky='W', row=1, column=4, padx=5)
 
-        self.beginBtnPsc = tk.Button(tabPsc, text='Begin', command=self.beginPsc).grid(sticky='W', row=2, column=0, padx=5)
-        self.fileBtnPsc = tk.Button(tabPsc, text='Pick file')
+
+        self.beginBtnPsc = ttk.Button(tabPsc, text='Begin', command=self.beginPsc, style='My.TButton').grid(sticky='W', row=2, column=0, padx=5, pady=5)
+        self.fileBtnPsc = ttk.Button(tabPsc, text='Pick file', style='My.TButton')
         self.fileBtnPsc.bind('<ButtonRelease-1>', self.pickFile)
-        self.fileBtnPsc.grid(sticky='W', row=1, column=4)
-        self.rmBtnPsc = tk.Button(tabPsc, text='Remove config')
+        self.fileBtnPsc.grid(sticky='WE', row=1, column=4, padx=5)
+        self.rmBtnPsc = ttk.Button(tabPsc, text='Remove config', style='My.TButton')
         self.rmBtnPsc.bind('<ButtonRelease-1>', self.remove)
-        self.rmBtnPsc.grid(sticky='W', row=0, column=4)
+        self.rmBtnPsc.grid(sticky='W', row=0, column=4, padx=5, pady=(5,2))
 
-        self.beginBtnSm = tk.Button(tabSm, text='Begin', command=self.beginSm).grid(sticky='W', row=4, column=0, padx=5)
-        self.fileBtnSm = tk.Button(tabSm, text='Pick file')
+        self.beginBtnSm = ttk.Button(tabSm, text='Begin', command=self.beginSm, style='My.TButton').grid(sticky='W', row=4, column=0, padx=5, pady=5)
+        self.fileBtnSm = ttk.Button(tabSm, text='Pick file', style='My.TButton')
         self.fileBtnSm.bind('<ButtonRelease-1>', self.pickFile)
-        self.fileBtnSm.grid(sticky='W', row=2, column=4)
-        self.rmBtnSm = tk.Button(tabSm, text='Remove config')
+        self.fileBtnSm.grid(sticky='WE', row=2, column=4, padx=5)
+        self.rmBtnSm = ttk.Button(tabSm, text='Remove config', style='My.TButton')
         self.rmBtnSm.bind('<ButtonRelease-1>', self.remove)
-        self.rmBtnSm.grid(sticky='W', row=1, column=4)
+        self.rmBtnSm.grid(sticky='W', row=1, column=4, padx=5, pady=(5,2))
 
         #combobox
         self.combo = ttk.Combobox(tabBifi,textvariable=self.comboVar,values=self.comboList)
@@ -147,6 +169,24 @@ class Application(tk.Frame):
         tabBifi.grid_columnconfigure(2, weight=1)
         tabPsc.grid_columnconfigure(2, weight=1)
         tabSm.grid_columnconfigure(2, weight=1)
+
+        # #Setting it up
+        # img = ImageTk.PhotoImage(Image.open("imec.png"))
+        # # Displaying it
+        # imglabel = ttk.Label(tabBifi, image=img).grid(row=5)
+
+        img = Image.open("imec.png")
+        basewidth = 60 #70 voor zelfde breedte
+        wpercent = (basewidth / float(img.size[0]))
+        hsize = int((float(img.size[1]) * float(wpercent)))
+        img = img.resize((basewidth, hsize), Image.ANTIALIAS)
+        img = ImageTk.PhotoImage(img)
+        label1 = Label(tabBifi, image=img)
+        label1.image = img
+        label1.grid(row=4, column=4, padx=5, pady=(5,5), sticky='E')#, columnspan=2) #pady=(0,5) voor breedte
+        #label1.place(x=20, y=20)
+
+
 
     def getFrame(self, caller):
         if 'frame.' in str(caller):
@@ -352,41 +392,42 @@ class Application(tk.Frame):
         # yes: begin
         # no: show error message
 
-        if self.panelInput.get() == "":
-            self.errorLabelSm.config(text='Error : No panel')
-        elif self.panelInput.get().isdigit():
-            if int(self.panelInput.get()) > 0 and int(self.panelInput.get()) <= 6:
-                # if begin function is done : show 'file saved' and save the configuration if not already in config.txt
-                if(self.fileInputSm.get().endswith('.xlsx')):
-                    self.errorLabelSm.config(text='Running...')
-                    self.errorLabelSm.update()
-                    if Main.Main.beginSm(self, self.panelInput.get(), wbName, filePath):
-                        self.errorLabelSm.config(text='File saved')
+        # if self.panelInput.get() == "":
+        #     self.errorLabelSm.config(text='Error : No panel')
+        # elif self.panelInput.get().isdigit():
+        #     if int(self.panelInput.get()) > 0 and int(self.panelInput.get()) <= 6:
+        #         # if begin function is done : show 'file saved' and save the configuration if not already in config.txt
+        if(self.fileInputSm.get().endswith('.xlsx')):
+            self.errorLabelSm.config(text='Running...')
+            self.errorLabelSm.update()
+            if Main.Main.beginSm(self, wbName, filePath): #self.panelInput.get(),
+                self.errorLabelSm.config(text='File saved')
 
-                        # configText = 'Sm|' + self.fileInputSm.get()
-                        #
-                        # # check if the file is already in config.txt and add it if not
-                        # inFile = False
-                        # for i in range(0, len(self.configSm), 1):
-                        #     if configText == 'Sm|' + self.configSm[i]:
-                        #         inFile = True
-                        #
-                        # if inFile == False:
-                        #     with open('config.txt','a+') as f:
-                        #         f.write(configText)
-                        #         f.write('\n')
-                        #         self.configSm.append(filePath + wbName)
+                # configText = 'Sm|' + self.fileInputSm.get()
+                #
+                # # check if the file is already in config.txt and add it if not
+                # inFile = False
+                # for i in range(0, len(self.configSm), 1):
+                #     if configText == 'Sm|' + self.configSm[i]:
+                #         inFile = True
+                #
+                # if inFile == False:
+                #     with open('config.txt','a+') as f:
+                #         f.write(configText)
+                #         f.write('\n')
+                #         self.configSm.append(filePath + wbName)
 
-                    else:
-                        self.errorLabelSm.config(text='Error: Something went wrong')
-                else:
-                    self.errorLabelSm.config(text='Error : Not a .xlsx file')
             else:
-                self.errorLabelSm.config(text='Error : Panel must be a number in the range 1 to 6')
+                self.errorLabelSm.config(text='Error: Something went wrong')
         else:
-            self.errorLabelSm.config(text='Error : Panel must be a number in the range 1 to 6')
+            self.errorLabelSm.config(text='Error : Not a .xlsx file')
+        #     else:
+        #         self.errorLabelSm.config(text='Error : Panel must be a number in the range 1 to 6')
+        # else:
+        #     self.errorLabelSm.config(text='Error : Panel must be a number in the range 1 to 6')
 
-root = tk.Tk()
+root = Tk()
 root.title("PID data automation")
+root.tk.call('wm', 'iconphoto', root._w, PhotoImage(file='Monocrystalline-solar-cell.png'))
 app = Application(master=root)
 app.mainloop()

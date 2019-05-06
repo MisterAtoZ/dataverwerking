@@ -38,10 +38,28 @@ class Application(tk.Frame):
         gui_style.configure('My.TLabel', background=bgColor, foreground=fgColor)
         gui_style.configure('My.TCheckbutton', background=bgColor, foreground=fgColor)
         gui_style.configure('My.TLabelframe.Label', background=bgColor, foreground=fgColor)
-        #gui_style.configure('My.TLabelframe.Label', background=bgColor)
+        gui_style.configure('My.TRadiobutton', background=bgColor, foreground=fgColor)
 
-        #gui_style.configure('My.TELabel', background='#DDDDDD', foreground="red")
-
+        # #style
+        # style = ttk.Style()
+        # style.theme_create('appstyle', parent='alt',
+        #                    settings={
+        #                        'TLabelframe': {
+        #                            'configure': {
+        #                                'background': bgColor,
+        #                                'bd': 'red'
+        #                            }
+        #                        },
+        #                        'TLabelframe.Label': {
+        #                            'configure': {
+        #                                'background': bgColor,
+        #                                'foreground': fgColor,
+        #                                'bd': 'red'
+        #                            }
+        #                        }
+        #                    }
+        #                    )
+        # style.theme_use('appstyle')
 
         #tabs
         tabControl = ttk.Notebook(self, style='My.TNotebook')
@@ -56,7 +74,9 @@ class Application(tk.Frame):
         tabSm = ttk.Frame(tabControl, style='My.TFrame')
         tabControl.add(tabSm, text='Switch matrix')
 
+
         #variables
+        self.hourRb = tk.IntVar()
         self.hourVar = tk.IntVar()
         self.fileVar = tk.StringVar()
         self.comboVar = tk.StringVar()
@@ -86,6 +106,7 @@ class Application(tk.Frame):
             self.comboList.append('') # voor Psc en Sm ook -----------------------------
             pass
 
+
         #labels
         self.hourLabel = ttk.Label(tabBifi, text='Maximum  duration of stressing? [h]', style='My.TLabel').grid(sticky='W', row=0, column=3,columnspan=2)
         self.configLabel = ttk.Label(tabBifi, text='Select previous configuration', style='My.TLabel').grid(sticky='W', row=1, column=3)
@@ -104,9 +125,14 @@ class Application(tk.Frame):
         self.errorLabelSm = ttk.Label(tabSm, text='', background=bgColor, foreground=red)
         self.errorLabelSm.grid(sticky='W', row=4, column=1, columnspan=3)
 
+        #radio buttons
+        self.rb1 = ttk.Radiobutton(tabBifi, text='All', variable=self.hourRb, value=1, style='My.TRadiobutton').grid(row=0)
+        self.rb2 = ttk.Radiobutton(tabBifi, text='Hours:', variable=self.hourRb, value=2, style='My.TRadiobutton').grid(row=0,column=1)
+        self.hourRb.set(1)
+
         #entries
         self.hourInput = ttk.Entry(tabBifi, textvariable=self.hourVar)
-        self.hourInput.grid(sticky='WE', row=0, column=0,columnspan=3,padx=5, pady=5)
+        self.hourInput.grid(sticky='WE', row=0, column=2, pady=5)
         self.fileInput = ttk.Entry(tabBifi,textvariable=self.fileVar)
         self.fileInput.grid(row=2,column=0,columnspan=3,sticky='WE',padx=5, pady=5)
 
@@ -314,7 +340,11 @@ class Application(tk.Frame):
             if(self.fileInput.get().endswith('.xlsx')):
                 self.errorLabel.config(text='Running...')
                 self.errorLabel.update()
-                if Main.Main.beginBifi(self, self.hourInput.get(), wbName, filePath, self.ivCb.get(), self.eqeCb.get(), self.photoCb.get()):
+                if(self.hourRb.get() == 1):
+                    hours = -1
+                else:
+                    hours = self.hourInput.get()
+                if Main.Main.beginBifi(self, hours, wbName, filePath, self.ivCb.get(), self.eqeCb.get(), self.photoCb.get()):
                     self.errorLabel.config(text='File saved')
 
                     configText = 'Bifi|' + self.fileInput.get()

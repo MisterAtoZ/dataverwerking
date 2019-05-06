@@ -144,14 +144,11 @@ class Grafieken():
         location = 'C20'
 
         if frame == 'Psc':
-            beginCol = 3
             chartObj.y_axis.scaling.max = 0
-        else:
-            beginCol = 1
 
         for i in range(0, len(times)):
-            xvalues = openpyxl.chart.Reference(sheet,min_col=beginCol+1+(i*3),min_row=4,max_col=beginCol+1+(i*3),max_row=sheet.max_row)
-            yvalues = openpyxl.chart.Reference(sheet,min_col=beginCol+(i*3),min_row=4,max_col=beginCol+(i*3),max_row=sheet.max_row)
+            xvalues = openpyxl.chart.Reference(sheet,min_col=2+(i*3),min_row=3,max_col=2+(i*3),max_row=sheet.max_row)
+            yvalues = openpyxl.chart.Reference(sheet,min_col=1+(i*3),min_row=3,max_col=1+(i*3),max_row=sheet.max_row)
             if frame == 'Psc':
                 seriesObj = openpyxl.chart.Series(yvalues, xvalues, title=str(times[i]) + ' min')
             else:

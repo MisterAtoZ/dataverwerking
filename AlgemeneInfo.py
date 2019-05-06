@@ -66,7 +66,7 @@ class AlgemeneInfo():
             for rows in range(begin, 2+len(hours), 1):
                 hourInt = int(round(hours[rows-2],0))
                 hourRounded = round(hours[rows-2],2)
-                if hourInt <= int(maxHour):
+                if hourInt <= int(maxHour) or maxHour == -1:
                     sheet.cell(row=nextRow, column=1).value = hourRounded
                     for i in range(4,data.max_row,len(sheetNames)):
                         if (str(data.cell(row=i, column=1).value) == str(hourInt)) or (str(data.cell(row=i, column=1).value) == str(subfolders[rows-2])):

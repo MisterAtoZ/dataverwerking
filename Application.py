@@ -66,22 +66,23 @@ class Application(tk.Frame):
         tabControl.pack(expand=1, fill='both')
 
         tabBifi = ttk.Frame(tabControl, style='My.TFrame')
-        tabControl.add(tabBifi, text='Loana')
+        tabControl.add(tabBifi, text='Ex-situ')
 
-        tabPsc = ttk.Frame(tabControl, style='My.TFrame')
-        tabControl.add(tabPsc, text='Thin film')
+        # tabPsc = ttk.Frame(tabControl, style='My.TFrame')
+        # tabControl.add(tabPsc, text='Thin film')
 
         tabSm = ttk.Frame(tabControl, style='My.TFrame')
-        tabControl.add(tabSm, text='Switch matrix')
+        tabControl.add(tabSm, text='In-situ')
 
 
         #variables
         self.hourRb = tk.IntVar()
+        self.exSituRb = tk.IntVar()
         self.hourVar = tk.IntVar()
         self.fileVar = tk.StringVar()
         self.comboVar = tk.StringVar()
-        self.comboList = []     # nr + configContent
-        self.configContent = [] # filepath
+        self.comboList = []     # nr + file
+        self.configContent = [] # nr + filepath
         self.samples = []       # frame + filepath
         self.ivCb = tk.IntVar()
         self.eqeCb = tk.IntVar()
@@ -106,18 +107,60 @@ class Application(tk.Frame):
             self.comboList.append('') # voor Psc en Sm ook -----------------------------
             pass
 
+        #Ex-situ
+            # Machine choise
+        self.machineLabel = ttk.Label(tabBifi, text='Select machine', style='My.TLabel').grid(sticky='W', row=0, column=0, columnspan=2, padx=5)
+        self.exSituRbLoana = ttk.Radiobutton(tabBifi, text='LOANA', variable=self.exSituRb, value=1,style='My.TRadiobutton',command = lambda:self.selectMachine())\
+            .grid(row=1,sticky='W', padx=5)
+        self.exSituRbThin = ttk.Radiobutton(tabBifi, text='Thin film', variable=self.exSituRb, value=2,style='My.TRadiobutton',command=lambda: self.selectMachine())\
+            .grid(row=1, column=1,sticky='W')
+        self.exSituRb.set(1)
+            # Hour choise
+        self.hourLabel = ttk.Label(tabBifi, text='Maximum  duration of stressing? [h]', style='My.TLabel').grid(sticky='W', row=2, column=0, columnspan=3, padx=5)
+        self.hourRbAll = ttk.Radiobutton(tabBifi, text='All', variable=self.hourRb, value=1,style='My.TRadiobutton').grid(row=3, sticky='W', padx=5)
+        self.hourRbEntry = ttk.Radiobutton(tabBifi, text='Hours:', variable=self.hourRb, value=2,style='My.TRadiobutton').grid(row=3, column=1,sticky='W')
+        self.hourRb.set(1)
+        self.hourInput = ttk.Entry(tabBifi, textvariable=self.hourVar)
+        self.hourInput.grid(sticky='WE', row=3, column=2, pady=5,padx=(0,5))
+            # Excel file
+        self.excelLabel = ttk.Label(tabBifi, text='Select Excel file', style='My.TLabel').grid(sticky='W',row=4,column=0,columnspan=2, padx=5)
+        #self.configLabel = ttk.Label(tabBifi, text='Select previous configuration', style='My.TLabel').grid(sticky='W',row=1,column=3)
+        self.combo = ttk.Combobox(tabBifi, textvariable=self.comboVar, values=self.comboList)
+        self.combo.grid(row=5, column=0, columnspan=3, sticky='WE', padx=5)
+        self.combo.current(len(self.comboList) - 1)
+        self.combo.bind('<<ComboboxSelected>>', self.select)
+        self.rmBtn = ttk.Button(tabBifi, text='Remove config', style='My.TButton')
+        self.rmBtn.bind('<ButtonRelease-1>', self.remove)
+        self.rmBtn.grid(sticky='WE', row=5, column=4, padx=5)
+        self.fileInput = ttk.Entry(tabBifi, textvariable=self.fileVar)
+        self.fileInput.grid(row=6, column=0, columnspan=3, sticky='WE', padx=5, pady=5)
+        self.fileBtn = ttk.Button(tabBifi, text='Pick file', style='My.TButton')
+        self.fileBtn.bind('<ButtonRelease-1>', self.pickFile)
+        self.fileBtn.grid(sticky='WE', row=6, column=4, padx=5)
+            # Data choise
+        self.dataLabel = ttk.Label(tabBifi, text='Select data types', style='My.TLabel').grid(sticky='W', row=7, column=0,columnspan=2, padx=5)
+        self.iv = ttk.Checkbutton(tabBifi, text="IV", variable=self.ivCb, onvalue=1, offvalue=0,style='My.TCheckbutton')
+        self.iv.grid(row=8, column=0, sticky='W', padx=5)
+        self.eqe = ttk.Checkbutton(tabBifi, text="EQE", variable=self.eqeCb, onvalue=1, offvalue=0,style='My.TCheckbutton')
+        self.eqe.grid(row=8, column=1, sticky='W')
+        self.photo = ttk.Checkbutton(tabBifi, text="Photo", variable=self.photoCb, onvalue=1, offvalue=0,style='My.TCheckbutton')
+        self.photo.grid(row=8, column=2, sticky='W')
+        self.beginBtn = ttk.Button(tabBifi, text='Begin', command=self.beginBifi, style='My.TButton').grid(sticky='W',row=9,column=0,padx=5,pady=5,columnspan=2)
+        self.errorLabel = ttk.Label(tabBifi, text='', background=bgColor, foreground=red)
+        self.errorLabel.grid(sticky='W', row=9, column=2, columnspan=3)
+
+
 
         #labels
-        self.hourLabel = ttk.Label(tabBifi, text='Maximum  duration of stressing? [h]', style='My.TLabel').grid(sticky='W', row=0, column=3,columnspan=2)
-        self.configLabel = ttk.Label(tabBifi, text='Select previous configuration', style='My.TLabel').grid(sticky='W', row=1, column=3)
-        self.fileLabel = ttk.Label(tabBifi, text='Excel file', style='My.TLabel').grid(sticky='W',row=2, column=3)
-        self.errorLabel = ttk.Label(tabBifi, text='', background=bgColor, foreground=red)
-        self.errorLabel.grid(sticky='W', row=4, column=2,columnspan=3)
 
-        self.configLabelPsc = ttk.Label(tabPsc, text='Select previous configuration', style='My.TLabel').grid(sticky='W', row=0, column=3)
-        self.fileLabelPsc = ttk.Label(tabPsc, text='Excel file', style='My.TLabel').grid(sticky='W', row=1, column=3)
-        self.errorLabelPsc = ttk.Label(tabPsc, text='', background=bgColor, foreground=red)
-        self.errorLabelPsc.grid(sticky='W', row=2, column=1, columnspan=3)
+
+        #self.fileLabel = ttk.Label(tabBifi, text='Excel file', style='My.TLabel').grid(sticky='W',row=2, column=3)
+
+
+        # self.configLabelPsc = ttk.Label(tabPsc, text='Select previous configuration', style='My.TLabel').grid(sticky='W', row=0, column=3)
+        # self.fileLabelPsc = ttk.Label(tabPsc, text='Excel file', style='My.TLabel').grid(sticky='W', row=1, column=3)
+        # self.errorLabelPsc = ttk.Label(tabPsc, text='', background=bgColor, foreground=red)
+        # self.errorLabelPsc.grid(sticky='W', row=2, column=1, columnspan=3)
 
         # self.panelLabel = tk.Label(tabSm, text='Number of panels').grid(sticky='W', row=0, column=3,columnspan=2)
         self.configLabelSm = ttk.Label(tabSm, text='Select previous configuration', style='My.TLabel').grid(sticky='W', row=1, column=3)
@@ -125,47 +168,34 @@ class Application(tk.Frame):
         self.errorLabelSm = ttk.Label(tabSm, text='', background=bgColor, foreground=red)
         self.errorLabelSm.grid(sticky='W', row=4, column=1, columnspan=3)
 
-        #radio buttons
-        self.rb1 = ttk.Radiobutton(tabBifi, text='All', variable=self.hourRb, value=1, style='My.TRadiobutton').grid(row=0)
-        self.rb2 = ttk.Radiobutton(tabBifi, text='Hours:', variable=self.hourRb, value=2, style='My.TRadiobutton').grid(row=0,column=1)
-        self.hourRb.set(1)
 
         #entries
-        self.hourInput = ttk.Entry(tabBifi, textvariable=self.hourVar)
-        self.hourInput.grid(sticky='WE', row=0, column=2, pady=5)
-        self.fileInput = ttk.Entry(tabBifi,textvariable=self.fileVar)
-        self.fileInput.grid(row=2,column=0,columnspan=3,sticky='WE',padx=5, pady=5)
 
-        self.fileInputPsc = ttk.Entry(tabPsc, textvariable=self.filePsc)
-        self.fileInputPsc.grid(row=1, column=0, columnspan=3, sticky='WE', padx=5)
+
+
+        # self.fileInputPsc = ttk.Entry(tabPsc, textvariable=self.filePsc)
+        # self.fileInputPsc.grid(row=1, column=0, columnspan=3, sticky='WE', padx=5)
 
         # self.panelInput = tk.Entry(tabSm, textvariable=self.panelVar)
         # self.panelInput.grid(sticky='WE', row=0, column=0, columnspan=3, padx=5)
         self.fileInputSm = ttk.Entry(tabSm, textvariable=self.fileSm)
         self.fileInputSm.grid(row=2, column=0, columnspan=3, sticky='WE', padx=5)
 
-        #checkboxes
-        self.iv = ttk.Checkbutton(tabBifi, text="IV", variable=self.ivCb, onvalue=1, offvalue=0, style='My.TCheckbutton').grid(row=3, column=0, sticky='W', padx=5)
-        self.eqe = ttk.Checkbutton(tabBifi, text="EQE", variable=self.eqeCb, onvalue=1, offvalue=0, style='My.TCheckbutton').grid(row=3, column=1, sticky='W')
-        self.photo = ttk.Checkbutton(tabBifi, text="Photo", variable=self.photoCb, onvalue=1, offvalue=0, style='My.TCheckbutton').grid(row=3, column=2,sticky='W')
+
 
         #buttons
-        self.beginBtn = ttk.Button(tabBifi, text='Begin', command=self.beginBifi, style='My.TButton').grid(sticky='W',row=4,column=0,padx=5, pady=5, columnspan=2)
-        self.fileBtn = ttk.Button(tabBifi, text='Pick file', style='My.TButton')
-        self.fileBtn.bind('<ButtonRelease-1>', self.pickFile)
-        self.fileBtn.grid(sticky='WE', row=2, column=4, padx=5)
-        self.rmBtn = ttk.Button(tabBifi, text='Remove config', style='My.TButton')
-        self.rmBtn.bind('<ButtonRelease-1>', self.remove)
-        self.rmBtn.grid(sticky='W', row=1, column=4, padx=5)
 
 
-        self.beginBtnPsc = ttk.Button(tabPsc, text='Begin', command=self.beginPsc, style='My.TButton').grid(sticky='W', row=2, column=0, padx=5, pady=5)
-        self.fileBtnPsc = ttk.Button(tabPsc, text='Pick file', style='My.TButton')
-        self.fileBtnPsc.bind('<ButtonRelease-1>', self.pickFile)
-        self.fileBtnPsc.grid(sticky='WE', row=1, column=4, padx=5)
-        self.rmBtnPsc = ttk.Button(tabPsc, text='Remove config', style='My.TButton')
-        self.rmBtnPsc.bind('<ButtonRelease-1>', self.remove)
-        self.rmBtnPsc.grid(sticky='W', row=0, column=4, padx=5, pady=(5,2))
+
+
+
+        # self.beginBtnPsc = ttk.Button(tabPsc, text='Begin', command=self.beginPsc, style='My.TButton').grid(sticky='W', row=2, column=0, padx=5, pady=5)
+        # self.fileBtnPsc = ttk.Button(tabPsc, text='Pick file', style='My.TButton')
+        # self.fileBtnPsc.bind('<ButtonRelease-1>', self.pickFile)
+        # self.fileBtnPsc.grid(sticky='WE', row=1, column=4, padx=5)
+        # self.rmBtnPsc = ttk.Button(tabPsc, text='Remove config', style='My.TButton')
+        # self.rmBtnPsc.bind('<ButtonRelease-1>', self.remove)
+        # self.rmBtnPsc.grid(sticky='W', row=0, column=4, padx=5, pady=(5,2))
 
         self.beginBtnSm = ttk.Button(tabSm, text='Begin', command=self.beginSm, style='My.TButton').grid(sticky='W', row=4, column=0, padx=5, pady=5)
         self.fileBtnSm = ttk.Button(tabSm, text='Pick file', style='My.TButton')
@@ -176,15 +206,12 @@ class Application(tk.Frame):
         self.rmBtnSm.grid(sticky='W', row=1, column=4, padx=5, pady=(5,2))
 
         #combobox
-        self.combo = ttk.Combobox(tabBifi,textvariable=self.comboVar,values=self.comboList)
-        self.combo.grid(row=1, column=0,columnspan=3, sticky='WE',padx=5)
-        self.combo.current(len(self.comboList)-1)
-        self.combo.bind('<<ComboboxSelected>>', self.select)
 
-        self.comboP = ttk.Combobox(tabPsc,textvariable=self.comboPsc,values=self.comboListPsc)
-        self.comboP.grid(row=0, column=0,columnspan=3, sticky='WE',padx=5)
-        self.comboP.current(len(self.comboListPsc)-1)
-        self.comboP.bind('<<ComboboxSelected>>', self.select)
+
+        # self.comboP = ttk.Combobox(tabPsc,textvariable=self.comboPsc,values=self.comboListPsc)
+        # self.comboP.grid(row=0, column=0,columnspan=3, sticky='WE',padx=5)
+        # self.comboP.current(len(self.comboListPsc)-1)
+        # self.comboP.bind('<<ComboboxSelected>>', self.select)
 
         self.comboS = ttk.Combobox(tabSm, textvariable=self.comboSm, values=self.comboListSm)
         self.comboS.grid(row=1, column=0, columnspan=3, sticky='WE', padx=5)
@@ -193,7 +220,7 @@ class Application(tk.Frame):
 
         #configure column 2 to stretch with the window
         tabBifi.grid_columnconfigure(2, weight=1)
-        tabPsc.grid_columnconfigure(2, weight=1)
+        # tabPsc.grid_columnconfigure(2, weight=1)
         tabSm.grid_columnconfigure(2, weight=1)
 
         # #Setting it up
@@ -209,10 +236,19 @@ class Application(tk.Frame):
         img = ImageTk.PhotoImage(img)
         label1 = Label(tabBifi, image=img)
         label1.image = img
-        label1.grid(row=4, column=4, padx=5, pady=(5,5), sticky='E')#, columnspan=2) #pady=(0,5) voor breedte
+        label1.grid(row=9, column=4, padx=5, pady=(5,5), sticky='E')#, columnspan=2) #pady=(0,5) voor breedte
         #label1.place(x=20, y=20)
 
 
+    def selectMachine(self):
+        if self.exSituRb.get() == 1:
+            self.iv.config(state=NORMAL)
+            self.eqe.config(state=NORMAL)
+            self.photo.config(state=NORMAL)
+        else:
+            self.iv.config(state=DISABLED)
+            self.eqe.config(state=DISABLED)
+            self.photo.config(state=DISABLED)
 
     def getFrame(self, caller):
         if 'frame.' in str(caller):
@@ -232,18 +268,21 @@ class Application(tk.Frame):
 
         if frame == 'Bifi':
             i = int(self.comboVar.get().split(' - ')[0]) - 1
+            #filepath = self.comboList[i].split('|')[1]
+            filepath = self.configContent[i].split('-')[1]
+            print(filepath)
             with open('config.txt','r') as file:
                 filedata = file.read()
-            filedata= filedata.replace('Bifi|' + self.configContent[i] + '\n', '')
+            filedata= filedata.replace('Bifi|' + filepath + '\n', '')
             with open('config.txt', 'w') as file:
                 file.write(filedata)
-        if frame == 'Psc':
-            i = int(self.comboPsc.get().split(' - ')[0]) - 1
-            with open('config.txt', 'r') as file:
-                filedata = file.read()
-            filedata = filedata.replace('Psc|' + self.configPsc[i] + '\n', '')
-            with open('config.txt', 'w') as file:
-                file.write(filedata)
+        # if frame == 'Psc':
+        #     i = int(self.comboPsc.get().split(' - ')[0]) - 1
+        #     with open('config.txt', 'r') as file:
+        #         filedata = file.read()
+        #     filedata = filedata.replace('Psc|' + self.configPsc[i] + '\n', '')
+        #     with open('config.txt', 'w') as file:
+        #         file.write(filedata)
 
     def pickFile(self, event):
         """
@@ -270,7 +309,10 @@ class Application(tk.Frame):
         frame = self.getFrame(caller)
         if frame == 'Bifi':
             print(self.comboVar.get())
-            path = self.comboVar.get().split(' - ')[1]
+            #print(self.comboList[(int(self.comboVar.get().split(' - ')[0]) - 1)][0]) #----------------------------------
+            #print(self.comboList[(self.comboVar.get().split(' - ')[0]) - 1].split('|')[1])
+            nr = int(self.comboVar.get().split(' - ')[0])-1
+            path = self.configContent[nr]
             self.setVars('Bifi', path)
         if frame == 'Psc':
             print(self.comboPsc.get())
@@ -293,17 +335,22 @@ class Application(tk.Frame):
                     frame = self.sampels[i].split('|')[0]
                     path = self.sampels[i].split('|')[1]
                     if frame == 'Bifi':
-                        self.configContent.append(path)
+                        nr = len(self.configContent) + 1
+                        self.configContent.append(str(nr) + '-' + path)
                         self.setVars(frame, path)
-                        self.comboVar.set(str(len(self.configContent)) + ' - ' + self.fileVar.get())
-                        self.comboList.append(self.comboVar.get())
-                    if frame == 'Psc':
-                        self.configPsc.append(path)
-                        self.setVars(frame, path)
-                        self.comboPsc.set(str(len(self.configPsc)) + ' - ' + self.filePsc.get())
-                        self.comboListPsc.append(self.comboPsc.get())
+                        filenames = self.fileVar.get().split('/')
+                        filename = filenames[len(filenames)-1]
+                        self.comboVar.set(str(nr) + ' - ' + filename)
+                        self.comboList.append(str(self.comboVar.get()))
+                        # self.comboList.append(self.comboVar.get())
+                    # if frame == 'Psc':
+                    #     self.configPsc.append(path)
+                    #     self.setVars(frame, path)
+                    #     self.comboPsc.set(str(len(self.configPsc)) + ' - ' + self.filePsc.get())
+                    #     self.comboListPsc.append(self.comboPsc.get())
             else:
                 self.comboList.append('')
+            print(self.comboVar.get())
 
 
     def setVars(self, frame, path):

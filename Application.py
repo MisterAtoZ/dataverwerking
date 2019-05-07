@@ -24,22 +24,22 @@ class Application(tk.Frame):
         self.pack(fill="both", expand=True)
 
         #styles
-        bgColor = '#444444' #29648A'
+        bgColor = '#343434' #29648A'
         fgColor = '#FFFFFF' #DFDFDF'
         red = '#f91919'
-        gui_style = ttk.Style()
-        #gui_style.configure('My.TButton', background='#2E9CCA')
-        gui_style.map("My.TButton",
-    #foreground=[('pressed', 'red'), ('active', bgColor)],
-    background=[('pressed', '!disabled', bgColor), ('active', bgColor), ('!active', bgColor)]
-    )
-        gui_style.configure('My.TFrame', background=bgColor)
-        gui_style.configure('My.TNotebook', background=fgColor)
-        gui_style.configure('My.TLabel', background=bgColor, foreground=fgColor)
-        gui_style.configure('My.TCheckbutton', background=bgColor, foreground=fgColor)
-        gui_style.configure('My.TLabelframe.Label', background=bgColor, foreground=fgColor)
-        gui_style.configure('My.TRadiobutton', background=bgColor, foreground=fgColor)
-
+    #     gui_style = ttk.Style()
+    #     #gui_style.configure('My.TButton', background='#2E9CCA')
+    #     gui_style.map("My.TButton",
+    # #foreground=[('pressed', 'red'), ('active', bgColor)],
+    # background=[('pressed', '!disabled', bgColor), ('active', bgColor), ('!active', bgColor)]
+    # )
+    #     gui_style.configure('My.TFrame', background=bgColor)
+    #     gui_style.configure('My.TNotebook', background=fgColor)
+    #     gui_style.configure('My.TLabel', background=bgColor, foreground=fgColor)
+    #     gui_style.configure('My.TCheckbutton', background=bgColor, foreground=fgColor)
+    #     gui_style.configure('My.TLabelframe.Label', background=bgColor, foreground=fgColor)
+    #     gui_style.configure('My.TRadiobutton', background=bgColor, foreground=fgColor)
+    #     gui_style.configure('My.TSeparator', background='#000000')
         # #style
         # style = ttk.Style()
         # style.theme_create('appstyle', parent='alt',
@@ -109,12 +109,14 @@ class Application(tk.Frame):
 
         #Ex-situ
             # Machine choise
+        ttk.Separator(tabBifi, orient=HORIZONTAL, style='My.TSeparator').grid(row=0, columnspan=5, sticky='WE')
         self.machineLabel = ttk.Label(tabBifi, text='Select machine', style='My.TLabel').grid(sticky='W', row=0, column=0, columnspan=2, padx=5)
         self.exSituRbLoana = ttk.Radiobutton(tabBifi, text='LOANA', variable=self.exSituRb, value=1,style='My.TRadiobutton',command = lambda:self.selectMachine())\
             .grid(row=1,sticky='W', padx=5)
         self.exSituRbThin = ttk.Radiobutton(tabBifi, text='Thin film', variable=self.exSituRb, value=2,style='My.TRadiobutton',command=lambda: self.selectMachine())\
             .grid(row=1, column=1,sticky='W')
         self.exSituRb.set(1)
+        ttk.Separator(tabBifi, orient=HORIZONTAL, style='My.TSeparator').grid(row=2, columnspan=5, sticky='WE')
             # Hour choise
         self.hourLabel = ttk.Label(tabBifi, text='Maximum  duration of stressing? [h]', style='My.TLabel').grid(sticky='W', row=2, column=0, columnspan=3, padx=5)
         self.hourRbAll = ttk.Radiobutton(tabBifi, text='All', variable=self.hourRb, value=1,style='My.TRadiobutton').grid(row=3, sticky='W', padx=5)
@@ -122,6 +124,7 @@ class Application(tk.Frame):
         self.hourRb.set(1)
         self.hourInput = ttk.Entry(tabBifi, textvariable=self.hourVar)
         self.hourInput.grid(sticky='WE', row=3, column=2, pady=5,padx=(0,5))
+        ttk.Separator(tabBifi, orient=HORIZONTAL, style='My.TSeparator').grid(row=4, columnspan=5, sticky='WE')
             # Excel file
         self.excelLabel = ttk.Label(tabBifi, text='Select Excel file', style='My.TLabel').grid(sticky='W',row=4,column=0,columnspan=2, padx=5)
         #self.configLabel = ttk.Label(tabBifi, text='Select previous configuration', style='My.TLabel').grid(sticky='W',row=1,column=3)
@@ -138,6 +141,7 @@ class Application(tk.Frame):
         self.fileBtn.bind('<ButtonRelease-1>', self.pickFile)
         self.fileBtn.grid(sticky='WE', row=6, column=4, padx=5)
             # Data choise
+        ttk.Separator(tabBifi, orient=HORIZONTAL, style='My.TSeparator').grid(row=7, columnspan=5, sticky='WE')
         self.dataLabel = ttk.Label(tabBifi, text='Select data types', style='My.TLabel').grid(sticky='W', row=7, column=0,columnspan=2, padx=5)
         self.iv = ttk.Checkbutton(tabBifi, text="IV", variable=self.ivCb, onvalue=1, offvalue=0,style='My.TCheckbutton')
         self.iv.grid(row=8, column=0, sticky='W', padx=5)
@@ -145,9 +149,13 @@ class Application(tk.Frame):
         self.eqe.grid(row=8, column=1, sticky='W')
         self.photo = ttk.Checkbutton(tabBifi, text="Photo", variable=self.photoCb, onvalue=1, offvalue=0,style='My.TCheckbutton')
         self.photo.grid(row=8, column=2, sticky='W')
-        self.beginBtn = ttk.Button(tabBifi, text='Begin', command=self.beginBifi, style='My.TButton').grid(sticky='W',row=9,column=0,padx=5,pady=5,columnspan=2)
-        self.errorLabel = ttk.Label(tabBifi, text='', background=bgColor, foreground=red)
-        self.errorLabel.grid(sticky='W', row=9, column=2, columnspan=3)
+            # Start
+        self.beginBtn = ttk.Button(tabBifi, text='Begin', command=self.beginBifi, style='My.TButton')
+        self.beginBtn.grid(sticky='W',row=9,column=0,padx=5,pady=5)
+        self.beginBtn.config(width=9)
+        self.errorLabel = ttk.Label(tabBifi, text='', foreground='red', font=('verdana', 10, ''))#, background=bgColor, foreground=red, font=('verdana', 10, ''))
+        self.errorLabel.grid(sticky='W', row=9, column=1, columnspan=3)
+
 
 
 

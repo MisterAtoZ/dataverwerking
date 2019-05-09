@@ -8,7 +8,7 @@ import os
 from os import listdir
 
 class Main():
-
+    # hours ipv maxHour
     def beginBifi(self, maxHour, wbName, path, ivCb, eqeCb, photoCb):
         # try:
         print('-------------')
@@ -23,22 +23,19 @@ class Main():
         print(sheetNames)
         print(len(sheetNames))
         wb = openpyxl.load_workbook(path + wbName, data_only=True)
-        data_exchange = 0
+        begin = 0
 
         if os.path.exists(path):
             for f in listdir(path):
                 if f.startswith('data-exchange') and f.endswith('.xlsx'):
                     data_exchange = f
-                    dataEx = openpyxl.load_workbook(path + '/' + data_exchange)
+                    dataEx = openpyxl.load_workbook(path + data_exchange)
                     WorkbookLayout.WorkbookLayout.makeSheets(wb, dataEx, graphNames, sheetNames, eqeCb)
                     info = AlgemeneInfo.AlgemeneInfo.datasheet(wb, sheetNames, dataEx, maxHour, subfolders)
                     begin = info[0]
                     hours = info[1]
                     print('hours : ' + str(hours))
-        else:
-            print('Error : path does not exist')
-            return False
-        if data_exchange == 0 and os.path.exists(path + subfolders[len(subfolders) - 1]):
+        if begin == 0 and os.path.exists(path + subfolders[len(subfolders) - 1]):
             for f in listdir(path + subfolders[len(subfolders) - 1]):
                 if f.startswith('data-exchange') and f.endswith('.xlsx'):
                     data_exchange = f
@@ -48,10 +45,7 @@ class Main():
                     begin = info[0]
                     hours = info[1]
                     print('hours : ' + str(hours))
-        else:
-            print('Error : path subfolder does not exist')
-            return False
-        if data_exchange == 0:
+        if begin == 0:
             print('Error : data_exchange file does not exist')
             return False
 
@@ -161,7 +155,8 @@ class Main():
         if(eqeCb) :
             dataType = dataType + 'eqe-'
 
-        wb.save(path + str(hours[len(hours) - 1]) + '-' + dataType + wbName)
+        wb.save(path + str(subfolders[len(subfolders) - 1]) + '-' + dataType + wbName)
+        print(path + str(subfolders[len(subfolders) - 1]) + '-' + dataType + wbName)
         return True
 
         # except:

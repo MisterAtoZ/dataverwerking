@@ -3,10 +3,18 @@ from tkinter import filedialog
 from tkinter import ttk
 from tkinter import *
 from PIL import ImageTk, Image
+
+import openpyxl
 import os
 from os import listdir
-import random
-import string
+import pandas as pd
+import matplotlib
+import matplotlib.pyplot as plt
+#matplotlib.use("TkAgg")
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
+from matplotlib.figure import Figure
+import Data
+import AlgemeneInfo
 import Main
 
 class Application(tk.Frame):
@@ -70,15 +78,23 @@ class Application(tk.Frame):
         tabControl.pack(expand=1, fill='both')
 
         self.tabBifi = ttk.Frame(tabControl, style='My.TFrame')
-        tabControl.add(self.tabBifi, text='Ex-situ')
+        tabControl.add(self.tabBifi, text='Processing')
 
         # tabPsc = ttk.Frame(tabControl, style='My.TFrame')
         # tabControl.add(tabPsc, text='Thin film')
 
-        tabSm = ttk.Frame(tabControl, style='My.TFrame')
-        tabControl.add(tabSm, text='In-situ')
+        self.tabInfo = ttk.Frame(tabControl, style='My.TFrame')
+        tabControl.add(self.tabInfo, text='Info')
 
         #variables
+        self.f = Figure(figsize=(5, 5), dpi=100)
+        self.ax = self.f.add_subplot(111)
+        self.fb = Figure(figsize=(5, 5), dpi=100)
+        self.bx = self.fb.add_subplot(111)
+        self.filePath = ''
+        self.samples = []
+        self.wbName = ''
+        self.hours = []
         self.hourRb = tk.IntVar()
         self.machineRb = tk.IntVar()
         self.sampleRb = []
@@ -111,7 +127,7 @@ class Application(tk.Frame):
             self.comboList.append('') # voor Psc en Sm ook -----------------------------
             pass
 
-        #Ex-situ
+        #Processing
             # Machine choise
         ttk.Separator(self.tabBifi, orient=HORIZONTAL, style='My.TSeparator').grid(row=0, columnspan=5, sticky='WE', padx=5)
         self.machineLabel = ttk.Label(self.tabBifi, text='Select machine', style='My.TLabel').grid(sticky='W', row=0, column=0, columnspan=2, padx=10)
@@ -139,13 +155,13 @@ class Application(tk.Frame):
             # Excel file
         self.excelLabel = ttk.Label(self.tabBifi, text='Select Excel file', style='My.TLabel').grid(sticky='W',row=4,column=0,columnspan=2, padx=10)
         #self.configLabel = ttk.Label(self.tabBifi, text='Select previous configuration', style='My.TLabel').grid(sticky='W',row=1,column=3)
-        self.combo = ttk.Combobox(self.tabBifi, textvariable=self.comboVar, values=self.comboList)
-        self.combo.grid(row=5, column=0, columnspan=3, sticky='WE', padx=5)
-        self.combo.current(len(self.comboList) - 1)
-        self.combo.bind('<<ComboboxSelected>>', self.select)
-        self.rmBtn = ttk.Button(self.tabBifi, text='Remove config', style='My.TButton')
-        self.rmBtn.bind('<ButtonRelease-1>', self.remove)
-        self.rmBtn.grid(sticky='WE', row=5, column=4, padx=5)
+        # self.combo = ttk.Combobox(self.tabBifi, textvariable=self.comboVar, values=self.comboList)
+        # self.combo.grid(row=5, column=0, columnspan=3, sticky='WE', padx=5)
+        # self.combo.current(len(self.comboList) - 1)
+        # self.combo.bind('<<ComboboxSelected>>', self.select)
+        # self.rmBtn = ttk.Button(self.tabBifi, text='Remove config', style='My.TButton')
+        # self.rmBtn.bind('<ButtonRelease-1>', self.remove)
+        # self.rmBtn.grid(sticky='WE', row=5, column=4, padx=5)
         self.fileInput = ttk.Entry(self.tabBifi, textvariable=self.fileVar)
         self.fileInput.grid(row=6, column=0, columnspan=3, sticky='WE', padx=5, pady=5)
         self.fileBtn = ttk.Button(self.tabBifi, text='Pick file', style='My.TButton')
@@ -179,6 +195,102 @@ class Application(tk.Frame):
         #configure column 2 to stretch with the window
         self.tabBifi.grid_columnconfigure(2, weight=1)
 
+        #Info
+        self.cbFrame = ttk.Frame(self.tabInfo, style='My.TFrame')
+        self.cbFrame.grid(row=0, columnspan=5, sticky='W', padx=5)
+        self.btn = ttk.Button(self.tabInfo, text='Begin', command=self.graph, style='My.TButton')
+        self.btn.grid(sticky='W', row=1, column=0, padx=5, pady=5)
+        self.gFrame = ttk.Frame(self.tabInfo, style='My.TFrame')
+        self.gFrame.grid(row=2, rowspan=2, sticky='W', padx=5)
+        self.gFrame2 = ttk.Frame(self.tabInfo, style='My.TFrame')
+        self.gFrame2.grid(row=2, rowspan=2, column=1, sticky='W', padx=5)
+        self.tFrame = ttk.Frame(self.tabInfo, style='My.TFrame')
+        self.tFrame.grid(row=2, column=2, sticky='W', padx=5)
+
+        self.canvas = FigureCanvasTkAgg(self.f, self.gFrame)
+        self.canvas.show()
+        self.canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
+        self.toolbar = NavigationToolbar2TkAgg(self.canvas, self.gFrame)
+        self.toolbar.update()
+        self.canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        self.canvas2 = FigureCanvasTkAgg(self.fb, self.gFrame2)
+        self.canvas2.show()
+        self.canvas2.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
+        self.toolbar = NavigationToolbar2TkAgg(self.canvas2, self.gFrame2)
+        self.toolbar.update()
+        self.canvas2._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        # configure column 2 to stretch with the window
+        # self.tabInfo.grid_columnconfigure(0, weight=1)
+        # self.tabInfo.grid_rowconfigure(3, weight=1)
+
+        # myscrollbar = Scrollbar(self.tabInfo, orient="vertical")
+        # myscrollbar.grid(row=1, column=3, sticky='E', rowspan=100)
+
+    def graph(self):
+        self.ax.clear()
+        self.bx.clear()
+        iv = []
+        counter = 1
+        print('----')
+        for i in range(0, len(self.sampleRb)):
+            print(self.samples[i])
+            print(self.sampleRb[i].get())
+            if self.sampleRb[i].get() == 1:
+                self.f = plt.figure(counter)
+                counter = counter + 1
+                for h in self.hours:
+                    print(h)
+                    if self.machineRb.get() == 1:
+                        if os.path.exists(self.filePath + '/' + str(h) + '/' + self.samples[i] + '/IV/' + self.samples[i] + '.lgt'):
+                            iv = Data.Data.getDataList(self.filePath + '/' + str(h) + '/' + self.samples[i] + '/IV/' + self.samples[i] + '.lgt')
+                            div = Data.Data.getDataList(self.filePath + '/' + str(h) + '/' + self.samples[i] + '/IV/' + self.samples[i] + '.drk')
+                            self.ax.plot(iv[1], iv[0], label=h + 'h')
+                            self.bx.plot(div[1], div[0], label=h + 'h')
+                    else:
+                        if os.path.exists(self.filePath + '/' + self.samples[i] + '/' + h + '.csv'):
+                            iv = Data.Data.getDataListSm(self.filePath + '/' + self.samples[i] + '/' + h + '.csv')
+                            self.bx.plot(iv[1], iv[0], label=h + 'h')
+        self.ax.set_xlabel('Voltage [V]')
+        self.ax.set_ylabel('Current [A]')
+        self.ax.set_title('Light IV')
+        self.ax.legend()
+        self.bx.set_xlabel('Voltage [V]')
+        self.bx.set_ylabel('Current [A]')
+        self.bx.set_title('Dark IV')
+        self.bx.legend()
+        self.canvas.draw()
+        self.canvas2.draw()
+
+        self.table()
+
+    def table(self):
+        print('table ---')
+        for widget in self.tFrame.winfo_children():
+            print(widget)
+            widget.destroy()
+        print(self.hours[-1])
+        print(self.filePath + self.hours[-1] + '-' + self.wbName)
+        if os.path.exists(self.filePath + self.hours[-1] + '-' + self.wbName):
+            self.titleH = ttk.Label(self.tFrame, text='Time [h]', style='My.TLabel').grid(sticky='NW', row=0, column=0, padx=5)
+            ttk.Separator(self.tFrame, orient=VERTICAL, style='My.TSeparator').grid(row=0, column=1, rowspan=len(self.hours)+2, sticky='NS')
+            self.titleP = ttk.Label(self.tFrame, text='%PID', style='My.TLabel').grid(sticky='NW', row=0, column=2, padx=5)
+            ttk.Separator(self.tFrame, orient=HORIZONTAL, style='My.TSeparator').grid(row=1, columnspan=3, sticky='WE',padx=5)
+
+            for i in range(0, len(self.hours)):
+                ttk.Label(self.tFrame, text=self.hours[i], style='My.TLabel').grid(row=i+2, column=0, padx=5)
+                # get %PID from Excel
+                wb = openpyxl.load_workbook(self.filePath + self.hours[-1] + '-' + self.wbName, data_only=True)
+                for j in range(0, len(self.sampleRb)):
+                    if self.sampleRb[j].get() == 1:
+                        activeSheet = wb[self.samples[j]]
+                        if activeSheet.cell(row=i+2, column=17).value is not None:
+                            label = round(activeSheet.cell(row=i+2, column=17).value,2)
+                        else:
+                            label = '' # label over label -> update
+                        print(label)
+                        ttk.Label(self.tFrame, text=label, style='My.TLabel').grid(row=i+2, column=2, padx=5, sticky='W')
 
     def selectMachine(self):
         if self.machineRb.get() == 1:
@@ -223,28 +335,67 @@ class Application(tk.Frame):
         """
         caller = event.widget
         print(caller)
-        samples = []
+        self.cbFrame.destroy()
+        self.cbFrame = None
+        self.cbFrame = ttk.Frame(self.tabInfo, style='My.TFrame')
+        self.cbFrame.grid(row=0, columnspan=5, sticky='W', padx=5)
+        self.filePath = ''
+        self.samples = []
+        self.wbName = ''
+        self.hours = []
+        self.sampleRb = []
+
         self.filename = tk.filedialog.askopenfilename(initialdir="/", title="Select file",filetypes=(("xlsx files", "*.xlsx"), ("all files", "*.*")))
         if self.filename != None:
                 self.fileVar.set(self.filename)
-                pathsplit = self.filename.split('/')[:-1]
-                path = ''
-                for i in pathsplit:
-                    path = path + i + '/'
-                for f in listdir(path):
-                    if os.path.isdir(path + f):
-                        for g in listdir(path + f):
-                            if os.path.isdir(path + f + '/' + g):
-                                samples.append(g)
-                                rb = tk.IntVar()
-                                self.sampleRb.append(rb)
-                    break
-                print(samples)
-                if samples != []:
+                self.wbName = self.filename.split('/')[-1]
+                print(self.wbName)
+                self.filePath = self.filename.replace(self.wbName, '')
+                # pathsplit = self.filename.split('/')[:-1]
+                # self.filePath = ''
+                # for i in pathsplit:
+                #     self.filePath = self.filePath + i + '/'
+                print(self.filePath)
+                for f in listdir(self.filePath):
+                    if self.machineRb.get() == 1:
+                        if os.path.isdir(self.filePath + f):
+                            for g in listdir(self.filePath + f):
+                                if os.path.isdir(self.filePath + f + '/' + g):
+                                    self.samples.append(g)
+                                    rb = tk.IntVar()
+                                    self.sampleRb.append(rb)
+                        break
+                    elif self.machineRb.get() == 2:
+                        print('thin film')
+                    else:
+                        if os.path.isdir(self.filePath + f):
+                            self.samples.append(f)
+                            rb = tk.IntVar()
+                            self.sampleRb.append(rb)
+
+                print(self.samples)
+                if self.samples != []:
+                    if self.machineRb.get() == 1:
+                        # wb = openpyxl.load_workbook(self.filename, data_only=True)
+                        # self.hours = AlgemeneInfo.AlgemeneInfo.calculateHours(self, wb)
+                        # for i in range(0, len(self.hours), 1):
+                        #     self.hours[i] = int(round(self.hours[i], 0))
+                        subfolders = [f.name for f in os.scandir(self.filePath) if f.is_dir()]
+                        subfolders.sort(key=float)
+                        self.hours = subfolders
+                    elif self.machineRb.get() == 3:
+                        print(self.samples[0])
+                        modulePath = self.filePath + self.samples[0]
+                        files = [f.name for f in os.scandir(modulePath)]
+                        for f in files:
+                            if f.endswith('.csv'):
+                                self.hours.append(f[:-4])
+
                     print('add checkboxes')
-                    for i in range(0,len(samples)):
-                        cb = ttk.Checkbutton(self.tabBifi, text=samples[i], variable=self.sampleRb[i])
-                        cb.grid(row=11, column=i, sticky='W')
+
+                    for i in range(0,len(self.samples)):
+                        cb = ttk.Checkbutton(self.cbFrame, text=self.samples[i], variable=self.sampleRb[i], style='My.TCheckbutton', )
+                        cb.pack(side='left', fill=None, expand=False, padx=(0,5))
 
             # if frame == 'Psc':
             #     self.filePsc.set(self.filename)
@@ -256,8 +407,6 @@ class Application(tk.Frame):
         """
         select a configuration with the comboBox and set the configuration variables in the gui
         """
-        caller = event.widget
-        frame = self.getFrame(caller)
         if self.machineRb.get() == 1:
             print(self.comboVar.get())
             nr = int(self.comboVar.get().split(' - ')[0])-1
@@ -335,11 +484,11 @@ class Application(tk.Frame):
         print(self.sampleRb[2].get())
         print(self.sampleRb[3].get())
         #wbName
-        filePath=''
-        filenameSplit = self.fileInput.get().split('/')
-        for i in range(0,len(filenameSplit)-1,1):
-            filePath = filePath + str(filenameSplit[i]) + '/'
-        wbName = filenameSplit[len(filenameSplit)-1]
+        # self.filePath=''
+        # filenameSplit = self.fileInput.get().split('/')
+        # for i in range(0,len(filenameSplit)-1,1):
+        #     self.filePath = self.filePath + str(filenameSplit[i]) + '/'
+        # wbName = filenameSplit[-1]
         # check if all variables are set correctly
         # yes: begin
         # no: show error message
@@ -363,7 +512,7 @@ class Application(tk.Frame):
                     hours = -1
                 else:
                     hours = self.hourInput.get() #+ '-' + self.hourInput2.get()
-                if Main.Main.beginBifi(self, hours, wbName, filePath, self.ivCb.get(), self.eqeCb.get(), self.photoCb.get()):
+                if Main.Main.beginBifi(self, hours, self.wbName, self.filePath, self.ivCb.get(), self.eqeCb.get(), self.photoCb.get()):
                     self.errorLabel.config(text='File saved')
 
                     # configText = 'Bifi|' + self.fileInput.get()
@@ -391,11 +540,11 @@ class Application(tk.Frame):
         """
         print('beginPsc')
         #wbName
-        filePath=''
-        filenameSplit = self.fileInputPsc.get().split('/')
-        for i in range(0,len(filenameSplit)-1,1):
-            filePath = filePath + str(filenameSplit[i]) + '/'
-        wbName = filenameSplit[len(filenameSplit)-1]
+        # self.filePath=''
+        # filenameSplit = self.fileInputPsc.get().split('/')
+        # for i in range(0,len(filenameSplit)-1,1):
+        #     self.filePath = self.filePath + str(filenameSplit[i]) + '/'
+        # wbName = filenameSplit[-1]
         # check if all variables are set correctly
         # yes: begin
         # no: show error message
@@ -404,22 +553,22 @@ class Application(tk.Frame):
         if(self.fileInputPsc.get().endswith('.xlsx')):
             self.errorLabelPsc.config(text='Running...')
             self.errorLabelPsc.update()
-            if Main.Main.beginPsc(self, wbName, filePath):
+            if Main.Main.beginPsc(self, self.wbName, self.filePath):
                 self.errorLabelPsc.config(text='File saved')
 
-                configText = 'Psc|' + self.fileInputPsc.get()
-
-                # check if the file is already in config.txt and add it if not
-                inFile = False
-                for i in range(0, len(self.configPsc), 1):
-                    if configText == 'Psc|' + self.configPsc[i]:
-                        inFile = True
-
-                if inFile == False:
-                    with open('config.txt','a+') as f:
-                        f.write(configText)
-                        f.write('\n')
-                        self.configPsc.append(filePath + wbName)
+                # configText = 'Psc|' + self.fileInputPsc.get()
+                #
+                # # check if the file is already in config.txt and add it if not
+                # inFile = False
+                # for i in range(0, len(self.configPsc), 1):
+                #     if configText == 'Psc|' + self.configPsc[i]:
+                #         inFile = True
+                #
+                # if inFile == False:
+                #     with open('config.txt','a+') as f:
+                #         f.write(configText)
+                #         f.write('\n')
+                #         self.configPsc.append(self.filePath + self.wbName)
             else:
                 self.errorLabelPsc.config(text='Error: Something went wrong')
         else:
@@ -432,11 +581,14 @@ class Application(tk.Frame):
         """
         print('beginSw')
         #wbName
-        filePath=''
-        filenameSplit = self.fileInputSm.get().split('/')
-        for i in range(0,len(filenameSplit)-1,1):
-            filePath = filePath + str(filenameSplit[i]) + '/'
-        wbName = filenameSplit[len(filenameSplit)-1]
+        # self.filePath=''
+        # filenameSplit = self.fileInput.get().split('/')
+        # for i in range(0,len(filenameSplit)-1,1):
+        #     self.filePath = self.filePath + str(filenameSplit[i]) + '/'
+        # wbName = filenameSplit[len(filenameSplit)-1]
+
+
+
         # check if all variables are set correctly
         # yes: begin
         # no: show error message
@@ -446,11 +598,11 @@ class Application(tk.Frame):
         # elif self.panelInput.get().isdigit():
         #     if int(self.panelInput.get()) > 0 and int(self.panelInput.get()) <= 6:
         #         # if begin function is done : show 'file saved' and save the configuration if not already in config.txt
-        if(self.fileInputSm.get().endswith('.xlsx')):
-            self.errorLabelSm.config(text='Running...')
-            self.errorLabelSm.update()
-            if Main.Main.beginSm(self, wbName, filePath): #self.panelInput.get(),
-                self.errorLabelSm.config(text='File saved')
+        if(self.fileInput.get().endswith('.xlsx')):
+            self.errorLabel.config(text='Running...')
+            self.errorLabel.update()
+            if Main.Main.beginSm(self, self.wbName, self.filePath): #self.panelInput.get(),
+                self.errorLabel.config(text='File saved')
 
                 # configText = 'Sm|' + self.fileInputSm.get()
                 #
@@ -467,9 +619,9 @@ class Application(tk.Frame):
                 #         self.configSm.append(filePath + wbName)
 
             else:
-                self.errorLabelSm.config(text='Error: Something went wrong')
+                self.errorLabel.config(text='Error: Something went wrong')
         else:
-            self.errorLabelSm.config(text='Error : Not a .xlsx file')
+            self.errorLabel.config(text='Error : Not a .xlsx file')
         #     else:
         #         self.errorLabelSm.config(text='Error : Panel must be a number in the range 1 to 6')
         # else:

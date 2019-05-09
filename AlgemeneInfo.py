@@ -21,36 +21,7 @@ class AlgemeneInfo():
                 beginRow = i + 2
                 print('beginRow : ' + str(beginRow))
 
-        # calculate hours
-        previousHour = 0
-        hours = [0]
-        # fill in the hours in general sheet and make a list of all these hours
-        # first check if a date is filled in.
-        #   No : break out of for loop because no hours come after
-        #   Yes : check if an hour is filled in. Yes : don't have to calculate hour but still append to list
-        #                                        No : calculate hour and append to list
-        for i in range(beginRow, generalSheet.max_row, 1):
-            if generalSheet.cell(row=i, column=1).value == None:
-                break
-            if generalSheet.cell(row=i, column=5).value != None:
-                previousHour = generalSheet.cell(row=i, column=5).value
-            else:
-                date1 = generalSheet.cell(row=i, column=1).value
-                date2 = generalSheet.cell(row=i - 1, column=1).value
-                timeOut = generalSheet.cell(row=i, column=2).value
-                timeIn = generalSheet.cell(row=i - 1, column=3).value
-
-                date1 = date1.replace(hour=timeOut.hour, minute=timeOut.minute)
-                date2 = date2.replace(hour=timeIn.hour, minute=timeIn.minute)
-
-                seconds = (date1 - date2).total_seconds()
-                interval = seconds / 3600
-
-                generalSheet.cell(row=i, column=4).value = interval
-                generalSheet.cell(row=i, column=5).value = interval + previousHour
-
-                previousHour = generalSheet.cell(row=i, column=5).value
-            hours.append(previousHour)
+        hours = AlgemeneInfo.calculateHours(wb)
 
         # fill in dataEx data in correct sheets
         for n in range(0, len(sheetNames), 1):
@@ -84,3 +55,46 @@ class AlgemeneInfo():
         for i in range(0, len(hours),1):
             hours[i] = int(round(hours[i],0))
         return [begin, hours]
+
+
+    def calculateHours(wb):
+        generalSheet = wb['General']
+
+        # calculate the row with the first stressed hour
+        for i in range(1, generalSheet.max_row, 1):
+            if generalSheet.cell(row=i, column=5).value == 'Acc. Hours  [h]':
+                beginRow = i + 2
+                print('beginRow : ' + str(beginRow))
+
+        # calculate hours
+        previousHour = 0
+        hours = [0]
+        # fill in the hours in general sheet and make a list of all these hours
+        # first check if a date is filled in.
+        #   No : break out of for loop because no hours come after
+        #   Yes : check if an hour is filled in. Yes : don't have to calculate hour but still append to list
+        #                                        No : calculate hour and append to list
+        for i in range(beginRow, generalSheet.max_row, 1):
+            if generalSheet.cell(row=i, column=1).value == None:
+                break
+            if generalSheet.cell(row=i, column=5).value != None:
+                previousHour = generalSheet.cell(row=i, column=5).value
+            else:
+                date1 = generalSheet.cell(row=i, column=1).value
+                date2 = generalSheet.cell(row=i - 1, column=1).value
+                timeOut = generalSheet.cell(row=i, column=2).value
+                timeIn = generalSheet.cell(row=i - 1, column=3).value
+
+                date1 = date1.replace(hour=timeOut.hour, minute=timeOut.minute)
+                date2 = date2.replace(hour=timeIn.hour, minute=timeIn.minute)
+
+                seconds = (date1 - date2).total_seconds()
+                interval = seconds / 3600
+
+                generalSheet.cell(row=i, column=4).value = interval
+                generalSheet.cell(row=i, column=5).value = interval + previousHour
+
+                previousHour = generalSheet.cell(row=i, column=5).value
+            hours.append(previousHour)
+
+        return hours

@@ -47,10 +47,10 @@ class Application(tk.Frame):
     )
         gui_style.configure('My.TFrame', background=bgColor)
         gui_style.configure('My.TNotebook', background=fgColor)
-        gui_style.configure('My.TLabel', background=bgColor, foreground=fgColor)
-        gui_style.configure('My.TCheckbutton', background=bgColor, foreground=fgColor)
+        gui_style.configure('My.TLabel', background=bgColor, foreground=fgColor, font=('verdana', 10, ''))
+        gui_style.configure('My.TCheckbutton', background=bgColor, foreground=fgColor, font=('verdana', 10, ''))
         gui_style.configure('My.TLabelframe.Label', background=bgColor, foreground=fgColor)
-        gui_style.configure('My.TRadiobutton', background=bgColor, foreground=fgColor)
+        gui_style.configure('My.TRadiobutton', background=bgColor, foreground=fgColor, font=('verdana', 10, ''))
         gui_style.configure('My.TSeparator', background='#000000')
         # #style
         # style = ttk.Style()
@@ -87,9 +87,9 @@ class Application(tk.Frame):
         tabControl.add(self.tabInfo, text='Info')
 
         #variables
-        self.f = Figure(figsize=(5, 5), dpi=100)
+        self.f = Figure(figsize=(4, 4), dpi=100)
         self.ax = self.f.add_subplot(111)
-        self.fb = Figure(figsize=(5, 5), dpi=100)
+        self.fb = Figure(figsize=(4, 4), dpi=100)
         self.bx = self.fb.add_subplot(111)
         self.filePath = ''
         self.samples = []
@@ -97,7 +97,8 @@ class Application(tk.Frame):
         self.hours = []
         self.hourRb = tk.IntVar()
         self.machineRb = tk.IntVar()
-        self.sampleRb = []
+        # self.sampleRb = []
+        self.sampleRb = tk.IntVar()
         self.hourVar = tk.IntVar()
         self.hourVar2 = tk.IntVar()
         self.fileVar = tk.StringVar()
@@ -129,29 +130,29 @@ class Application(tk.Frame):
 
         #Processing
             # Machine choise
-        ttk.Separator(self.tabBifi, orient=HORIZONTAL, style='My.TSeparator').grid(row=0, columnspan=5, sticky='WE', padx=5)
+        ttk.Separator(self.tabBifi, orient=HORIZONTAL, style='My.TSeparator').grid(row=0, columnspan=6, sticky='WE', padx=5)
         self.machineLabel = ttk.Label(self.tabBifi, text='Select machine', style='My.TLabel').grid(sticky='W', row=0, column=0, columnspan=2, padx=10)
         self.RbLoana = ttk.Radiobutton(self.tabBifi, text='LOANA', variable=self.machineRb, value=1, style='My.TRadiobutton', command = lambda:self.selectMachine())\
-            .grid(row=1,sticky='W', padx=5)
+            .grid(row=1,sticky='W', padx=5, pady=(0,5))
         self.RbThin = ttk.Radiobutton(self.tabBifi, text='Thin film', variable=self.machineRb, value=2, style='My.TRadiobutton', command=lambda: self.selectMachine())\
-            .grid(row=1, column=1,sticky='W')
+            .grid(row=1, column=1,sticky='W', pady=(0,5))
         self.machineRb.set(1)
         self.RbSwitch = ttk.Radiobutton(self.tabBifi, text='Switch matrix', variable=self.machineRb, value=3,
                                         style='My.TRadiobutton', command=lambda: self.selectMachine()) \
-            .grid(row=1, column=2, sticky='W')
+            .grid(row=1, column=2, sticky='W', pady=(0,5))
         self.machineRb.set(1)
-        ttk.Separator(self.tabBifi, orient=HORIZONTAL, style='My.TSeparator').grid(row=2, columnspan=5, sticky='WE', padx=5)
+        ttk.Separator(self.tabBifi, orient=HORIZONTAL, style='My.TSeparator').grid(row=2, columnspan=6, sticky='WE', padx=5)
             # Hour choise
         self.hourLabel = ttk.Label(self.tabBifi, text='Stressing duration?', style='My.TLabel').grid(sticky='W', row=2, column=0, columnspan=3, padx=10)
         self.hourRbAll = ttk.Radiobutton(self.tabBifi, text='All', variable=self.hourRb, value=1,style='My.TRadiobutton').grid(row=3, sticky='W', padx=5)
         self.hourRbEntry = ttk.Radiobutton(self.tabBifi, text='Between', variable=self.hourRb, value=2,style='My.TRadiobutton').grid(row=3, column=1,sticky='W')
         self.hourRb.set(1)
         self.hourInput = ttk.Entry(self.tabBifi, textvariable=self.hourVar)
-        self.hourInput.grid(sticky='WE', row=3, column=2, pady=5,padx=(0,5))
+        self.hourInput.grid(sticky='WE', row=3, column=2, pady=5,padx=(5,5))
         self.hourLabel = ttk.Label(self.tabBifi, text='and', style='My.TLabel').grid(sticky='W', row=3,column=3,padx=5)
         self.hourInput2 = ttk.Entry(self.tabBifi, textvariable=self.hourVar2)
         self.hourInput2.grid(sticky='WE', row=3, column=4, pady=5, padx=(5, 5))
-        ttk.Separator(self.tabBifi, orient=HORIZONTAL, style='My.TSeparator').grid(row=4, columnspan=5, sticky='WE', padx=5)
+        ttk.Separator(self.tabBifi, orient=HORIZONTAL, style='My.TSeparator').grid(row=4, columnspan=6, sticky='WE', padx=5)
             # Excel file
         self.excelLabel = ttk.Label(self.tabBifi, text='Select Excel file', style='My.TLabel').grid(sticky='W',row=4,column=0,columnspan=2, padx=10)
         #self.configLabel = ttk.Label(self.tabBifi, text='Select previous configuration', style='My.TLabel').grid(sticky='W',row=1,column=3)
@@ -163,23 +164,24 @@ class Application(tk.Frame):
         # self.rmBtn.bind('<ButtonRelease-1>', self.remove)
         # self.rmBtn.grid(sticky='WE', row=5, column=4, padx=5)
         self.fileInput = ttk.Entry(self.tabBifi, textvariable=self.fileVar)
-        self.fileInput.grid(row=6, column=0, columnspan=3, sticky='WE', padx=5, pady=5)
-        self.fileBtn = ttk.Button(self.tabBifi, text='Pick file', style='My.TButton')
+        self.fileInput.grid(row=6, column=1, columnspan=5, sticky='WE', padx=5, pady=5)
+        self.fileBtn = ttk.Button(self.tabBifi, text='Select file', style='My.TButton')
         self.fileBtn.bind('<ButtonRelease-1>', self.pickFile)
-        self.fileBtn.grid(sticky='WE', row=6, column=4, padx=5)
+        self.fileBtn.grid(sticky='WE', row=6, column=0, padx=5, pady=5)
+        # self.fileBtn.config(width=9)
             # Data choise
-        ttk.Separator(self.tabBifi, orient=HORIZONTAL, style='My.TSeparator').grid(row=7, columnspan=5, sticky='WE', padx=5)
+        ttk.Separator(self.tabBifi, orient=HORIZONTAL, style='My.TSeparator').grid(row=7, columnspan=6, sticky='WE', padx=5)
         self.dataLabel = ttk.Label(self.tabBifi, text='Select data types', style='My.TLabel').grid(sticky='W', row=7, column=0,columnspan=2, padx=10)
         self.iv = ttk.Checkbutton(self.tabBifi, text="IV", variable=self.ivCb, onvalue=1, offvalue=0,style='My.TCheckbutton')
-        self.iv.grid(row=8, column=0, sticky='W', padx=5)
+        self.iv.grid(row=8, column=0, sticky='W', padx=5, pady=5)
         self.eqe = ttk.Checkbutton(self.tabBifi, text="EQE", variable=self.eqeCb, onvalue=1, offvalue=0,style='My.TCheckbutton')
-        self.eqe.grid(row=8, column=1, sticky='W')
+        self.eqe.grid(row=8, column=1, sticky='W', pady=5)
         self.photo = ttk.Checkbutton(self.tabBifi, text="Photo", variable=self.photoCb, onvalue=1, offvalue=0,style='My.TCheckbutton')
-        self.photo.grid(row=8, column=2, sticky='W')
+        self.photo.grid(row=8, column=2, sticky='W', pady=5)
             # Start
         self.beginBtn = ttk.Button(self.tabBifi, text='Begin', command=self.begin, style='My.TButton')
         self.beginBtn.grid(sticky='W',row=9,column=0,padx=5,pady=5)
-        self.beginBtn.config(width=9)
+        # self.beginBtn.config(width=9)
         self.errorLabel = ttk.Label(self.tabBifi, text='', background=bgColor, foreground=red, font=('verdana', 10, ''))
         self.errorLabel.grid(sticky='W', row=9, column=1, columnspan=3)
         img = Image.open("UHasselt.png")
@@ -190,10 +192,10 @@ class Application(tk.Frame):
         img = ImageTk.PhotoImage(img)
         label1 = Label(self.tabBifi, image=img, background='white')
         label1.image = img
-        label1.grid(row=9, column=4, padx=5, pady=(5,5), sticky='E')#, columnspan=2) #pady=(0,5) voor breedte
+        label1.grid(row=0, column=5, columnspan=2, padx=5, pady=(5,5), sticky='E')#, columnspan=2) #pady=(0,5) voor breedte
 
         #configure column 2 to stretch with the window
-        self.tabBifi.grid_columnconfigure(2, weight=1)
+        self.tabBifi.grid_columnconfigure(5, weight=1)
 
         #Info
         self.cbFrame = ttk.Frame(self.tabInfo, style='My.TFrame')
@@ -232,26 +234,26 @@ class Application(tk.Frame):
         self.ax.clear()
         self.bx.clear()
         iv = []
-        counter = 1
         print('----')
-        for i in range(0, len(self.sampleRb)):
-            print(self.samples[i])
-            print(self.sampleRb[i].get())
-            if self.sampleRb[i].get() == 1:
-                self.f = plt.figure(counter)
-                counter = counter + 1
-                for h in self.hours:
-                    print(h)
-                    if self.machineRb.get() == 1:
-                        if os.path.exists(self.filePath + '/' + str(h) + '/' + self.samples[i] + '/IV/' + self.samples[i] + '.lgt'):
-                            iv = Data.Data.getDataList(self.filePath + '/' + str(h) + '/' + self.samples[i] + '/IV/' + self.samples[i] + '.lgt')
-                            div = Data.Data.getDataList(self.filePath + '/' + str(h) + '/' + self.samples[i] + '/IV/' + self.samples[i] + '.drk')
-                            self.ax.plot(iv[1], iv[0], label=h + 'h')
-                            self.bx.plot(div[1], div[0], label=h + 'h')
-                    else:
-                        if os.path.exists(self.filePath + '/' + self.samples[i] + '/' + h + '.csv'):
-                            iv = Data.Data.getDataListSm(self.filePath + '/' + self.samples[i] + '/' + h + '.csv')
-                            self.bx.plot(iv[1], iv[0], label=h + 'h')
+        print(self.sampleRb.get())
+        # for i in range(0, len(self.sampleRb)):
+        #     print(self.samples[i])
+        #     print(self.sampleRb[i].get())
+        #     if self.sampleRb[i].get() == 1:
+        i = self.sampleRb.get()
+        self.f = plt.figure(1)
+        for h in self.hours:
+            print(h)
+            if self.machineRb.get() == 1:
+                if os.path.exists(self.filePath + '/' + str(h) + '/' + self.samples[i] + '/IV/' + self.samples[i] + '.lgt'):
+                    iv = Data.Data.getDataList(self.filePath + '/' + str(h) + '/' + self.samples[i] + '/IV/' + self.samples[i] + '.lgt')
+                    div = Data.Data.getDataList(self.filePath + '/' + str(h) + '/' + self.samples[i] + '/IV/' + self.samples[i] + '.drk')
+                    self.ax.plot(iv[1], iv[0], label=h + 'h')
+                    self.bx.plot(div[1], div[0], label=h + 'h')
+            else:
+                if os.path.exists(self.filePath + '/' + self.samples[i] + '/' + h + '.csv'):
+                    iv = Data.Data.getDataListSm(self.filePath + '/' + self.samples[i] + '/' + h + '.csv')
+                    self.bx.plot(iv[1], iv[0], label=h + 'h')
         self.ax.set_xlabel('Voltage [V]')
         self.ax.set_ylabel('Current [A]')
         self.ax.set_title('Light IV')
@@ -282,15 +284,14 @@ class Application(tk.Frame):
                 ttk.Label(self.tFrame, text=self.hours[i], style='My.TLabel').grid(row=i+2, column=0, padx=5)
                 # get %PID from Excel
                 wb = openpyxl.load_workbook(self.filePath + self.hours[-1] + '-' + self.wbName, data_only=True)
-                for j in range(0, len(self.sampleRb)):
-                    if self.sampleRb[j].get() == 1:
-                        activeSheet = wb[self.samples[j]]
-                        if activeSheet.cell(row=i+2, column=17).value is not None:
-                            label = round(activeSheet.cell(row=i+2, column=17).value,2)
-                        else:
-                            label = '' # label over label -> update
-                        print(label)
-                        ttk.Label(self.tFrame, text=label, style='My.TLabel').grid(row=i+2, column=2, padx=5, sticky='W')
+                j = self.sampleRb.get()
+                activeSheet = wb[self.samples[j]]
+                if activeSheet.cell(row=i+2, column=17).value is not None:
+                    label = round(activeSheet.cell(row=i+2, column=17).value,2)
+                else:
+                    label = '' # label over label -> update
+                print(label)
+                ttk.Label(self.tFrame, text=label, style='My.TLabel').grid(row=i+2, column=2, padx=5, sticky='W')
 
     def selectMachine(self):
         if self.machineRb.get() == 1:
@@ -343,7 +344,7 @@ class Application(tk.Frame):
         self.samples = []
         self.wbName = ''
         self.hours = []
-        self.sampleRb = []
+        self.sampleRb = tk.IntVar()
 
         self.filename = tk.filedialog.askopenfilename(initialdir="/", title="Select file",filetypes=(("xlsx files", "*.xlsx"), ("all files", "*.*")))
         if self.filename != None:
@@ -363,7 +364,7 @@ class Application(tk.Frame):
                                 if os.path.isdir(self.filePath + f + '/' + g):
                                     self.samples.append(g)
                                     rb = tk.IntVar()
-                                    self.sampleRb.append(rb)
+                                    # self.sampleRb.append(rb)
                         break
                     elif self.machineRb.get() == 2:
                         print('thin film')
@@ -371,7 +372,7 @@ class Application(tk.Frame):
                         if os.path.isdir(self.filePath + f):
                             self.samples.append(f)
                             rb = tk.IntVar()
-                            self.sampleRb.append(rb)
+                            # self.sampleRb.append(rb)
 
                 print(self.samples)
                 if self.samples != []:
@@ -394,8 +395,10 @@ class Application(tk.Frame):
                     print('add checkboxes')
 
                     for i in range(0,len(self.samples)):
-                        cb = ttk.Checkbutton(self.cbFrame, text=self.samples[i], variable=self.sampleRb[i], style='My.TCheckbutton', )
-                        cb.pack(side='left', fill=None, expand=False, padx=(0,5))
+                        rb = ttk.Radiobutton(self.cbFrame, text=self.samples[i], variable=self.sampleRb, value=i,
+                                        style='My.TRadiobutton')
+                        # cb = ttk.Checkbutton(self.cbFrame, text=self.samples[i], variable=self.sampleRb[i], style='My.TCheckbutton', )
+                        rb.pack(side='left', fill=None, expand=False, padx=(0,5))
 
             # if frame == 'Psc':
             #     self.filePsc.set(self.filename)
@@ -479,10 +482,6 @@ class Application(tk.Frame):
         is called by beginBtn
         """
         print('beginBifi')
-        print(self.sampleRb[0].get())
-        print(self.sampleRb[1].get())
-        print(self.sampleRb[2].get())
-        print(self.sampleRb[3].get())
         #wbName
         # self.filePath=''
         # filenameSplit = self.fileInput.get().split('/')

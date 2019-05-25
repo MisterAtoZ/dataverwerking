@@ -55,6 +55,8 @@ class WorkbookLayout():
         :param sheetNames: list of the other sheet names, these are the sample names
         """
         wb = workbook
+        bold = Font(bold=True)
+
         # create the graph sheets
         for j in range(0, len(graphNames), 1):
             if graphNames[j] not in wb.sheetnames:
@@ -63,6 +65,19 @@ class WorkbookLayout():
         for n in range(0, len(sheetNames), 1):
             if sheetNames[n] not in wb.sheetnames:
                 wb.create_sheet(sheetNames[n])
+                sheet = wb[sheetNames[n]]
+                sheet.cell(row=1, column=1).value = 'Time [h]'
+                sheet.cell(row=1, column=1).font = bold
+                sheet.cell(row=1, column=2).value ='Voc [V]'
+                sheet.cell(row=1, column=2).font = bold
+                sheet.cell(row=1, column=3).value = 'Jsc [mA/cm2]'
+                sheet.cell(row=1, column=3).font = bold
+                sheet.cell(row=1, column=4).value = 'FF [%]'
+                sheet.cell(row=1, column=4).font = bold
+                sheet.cell(row=1, column=5).value = 'Eff [%]'
+                sheet.cell(row=1, column=5).font = bold
+                sheet.cell(row=1, column=6).value = '%PID [%]'
+                sheet.cell(row=1, column=6).font = bold
 
     def makeSheetsSm(workbook, sheetNames):
         """
@@ -210,7 +225,7 @@ class WorkbookLayout():
             column1 = activeSheet.max_column + 2
             column2 = activeSheet.max_column + 3
         activeSheet.merge_cells(start_row=1, start_column=column1, end_row=1, end_column=column2)
-        activeSheet.cell(row=1, column=column1).value = str(hour) + ' h'
+        activeSheet.cell(row=1, column=column1).value = str(hour) + ' min'
         activeSheet.cell(row=1, column=column1).font = bold
         activeSheet.cell(row=1, column=column1).alignment = Alignment(horizontal='center')
 

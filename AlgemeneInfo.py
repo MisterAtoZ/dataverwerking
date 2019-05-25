@@ -22,9 +22,11 @@ class AlgemeneInfo():
                 print('beginRow : ' + str(beginRow))
 
         hours = AlgemeneInfo.calculateHours(wb)
+        print('algemene info')
 
         # fill in dataEx data in correct sheets
         for n in range(0, len(sheetNames), 1):
+            print(sheetNames[n])
             sheet = wb[sheetNames[n]]
             nextRow = 1
             # calculate the first empty row
@@ -38,6 +40,7 @@ class AlgemeneInfo():
                 hourInt = int(round(hours[rows-2],0))
                 hourRounded = round(hours[rows-2],2)
                 if hourInt <= int(maxHour) or maxHour == -1:
+                    print(hourRounded)
                     sheet.cell(row=nextRow, column=1).value = hourRounded
                     for i in range(4,data.max_row,len(sheetNames)):
                         if (str(data.cell(row=i, column=1).value) == str(hourInt)) or (str(data.cell(row=i, column=1).value) == str(subfolders[rows-2])):
@@ -98,3 +101,20 @@ class AlgemeneInfo():
             hours.append(previousHour)
 
         return hours
+
+
+    def datasheetPsc(activeSheet, times, file_path_ini, t):
+        data = ['Voc', 'Jsc', 'FF', 'Eff']
+        i = 0
+        activeSheet.cell(row=2+t, column=1).value = str(times[t]) + ' min'
+        with open(file_path_ini, 'r') as file:
+           for line in file:
+               if i < len(data):
+                   if line.startswith(data[i]):
+                       split = line.split('"')
+                       activeSheet.cell(row=2+t, column=2+i).value = split[1]
+                       i = i + 1
+               else:
+                   #calculate PID
+                   activeSheet.cell(row=2+t, column=6).value = 100-100*float(activeSheet.cell(row=2+t, column=4).value)/float(activeSheet.cell(row=2,column=4).value)
+                   break

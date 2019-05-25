@@ -146,8 +146,8 @@ class Main():
         Grafieken.Grafieken.makeSeperateGraphs(wb, graphNames, sheetNames, hours)
 
         if (photoCb):
-            os.rename(os.path.dirname(os.path.dirname(path)) + '/' + str(wbNameImg) + '.jpg', path + str(hours[-1]) + '-' + str(wbNameImg) + '.jpg')
-
+            # os.rename(os.path.dirname(os.path.dirname(path)) + '/' + str(wbNameImg) + '.jpg', path + str(hours[-1]) + '-' + str(wbNameImg) + '.jpg')
+            os.rename(str(wbNameImg) + '.jpg', path + str(hours[-1]) + '-' + str(wbNameImg) + '.jpg')
         print('Saving...')
         dataType = ''
         if(ivCb):
@@ -207,32 +207,37 @@ class Main():
         print(sampleMeasures)
         times.sort(key=int)
         print(times)
+
         for n in sampleNames:
             for i in sampleNumbers:
                 for m in sampleMeasures:
-                    sheetNames.append('PSC_' + n + '_' + str(i) + '_' + m)
+                    sheetNames.append('PSC_' + n + '_' + str(i) + '_' + m) #
         print(sheetNames)
         WorkbookLayout.WorkbookLayout.makeSheetsPsc(wb, graphNames, sheetNames)
 
         for sn in sheetNames:
             activeSheet = wb[sn]
-            for t in times:
+            for t in range(0, len(times)):
                 # pad+n-tmin-i-m.dat
                 n = sn.split('_')[1]
                 i = sn.split('_')[2]
                 m = sn.split('_')[3]
-                file_path = filePath + n + '-' + str(t) + 'min-' + str(i) + '-' + str(m) + '.dat'
+                file_path_ini = filePath + n + '-' + str(times[t]) + 'min-' + str(i) + '-' + str(m) + '.ini'
+                if os.path.exists(file_path_ini):
+                    AlgemeneInfo.AlgemeneInfo.datasheetPsc(activeSheet, times, file_path_ini, t)
+                file_path = filePath + n + '-' + str(times[t]) + 'min-' + str(i) + '-' + str(m) + '.dat'
                 if os.path.exists(file_path):
                     iv = Data.Data.getDataListPsc(file_path)
-                    WorkbookLayout.WorkbookLayout.setIVPsc(activeSheet, t, iv)
+                    WorkbookLayout.WorkbookLayout.setIVPsc(activeSheet, times[t], iv)
             print(sn)
             print(activeSheet.max_row)
             print(activeSheet.max_column)
-            if (activeSheet.max_column == 1 and activeSheet.max_row == 1):
+            if (activeSheet.max_column == 6 and activeSheet.max_row == 1):
                 wb.remove(activeSheet)
                 print('sheet removed')
                 continue
             Grafieken.Grafieken.makeChartPscSm(sn, wb, times, 'Psc')
+        Grafieken.Grafieken.makeSeperateGraphsPsc(wb, sheetNames, times)
         print('Saving...')
         wb.save(filePath + str(times[len(times) - 1]) + '-' + wbName)
 

@@ -142,17 +142,55 @@ class Grafieken():
 
         chartObj.title = 'IV'
         location = 'C20'
+        beginCol = 0
 
         if frame == 'Psc':
             chartObj.y_axis.scaling.max = 0
+            for i in range(1, sheet.max_column, 1):
+                head = sheet.cell(row=1, column=i).value
+                if head is None:
+                    beginCol = i
+                    break
 
         for i in range(0, len(times)):
-            xvalues = openpyxl.chart.Reference(sheet,min_col=2+(i*3),min_row=3,max_col=2+(i*3),max_row=sheet.max_row)
-            yvalues = openpyxl.chart.Reference(sheet,min_col=1+(i*3),min_row=3,max_col=1+(i*3),max_row=sheet.max_row)
-            if frame == 'Psc':
-                seriesObj = openpyxl.chart.Series(yvalues, xvalues, title=str(times[i]) + ' min')
-            else:
-                seriesObj = openpyxl.chart.Series(yvalues, xvalues, title=str(times[i]) + ' h')
+            xvalues = openpyxl.chart.Reference(sheet,min_col=beginCol+2+(i*3),min_row=3,max_col=beginCol+2+(i*3),max_row=sheet.max_row)
+            yvalues = openpyxl.chart.Reference(sheet,min_col=beginCol+1+(i*3),min_row=3,max_col=beginCol+1+(i*3),max_row=sheet.max_row)
+            # if frame == 'Psc':
+            seriesObj = openpyxl.chart.Series(yvalues, xvalues, title=str(times[i]) + ' min')
+            # else:
+            #     seriesObj = openpyxl.chart.Series(yvalues, xvalues, title=str(times[i]) + ' h')
             chartObj.append(seriesObj)
 
         sheet.add_chart(chartObj, location)
+
+
+    def makeSeperateGraphsPsc(workbook, sheetNames, times):
+        """
+        creates the graphs mentioned in the graphNames list
+        :param workbook: Excel workbook
+        :param graphNames: list of graphs which need to be made
+        :param sheetNames: list of sheet names
+        :param hours: list of all the hours
+        """
+        wb = workbook
+        sheet = wb['%PID']
+
+        chartObj = openpyxl.chart.ScatterChart()
+        chartObj.legend.position = 'b'
+
+
+        chartObj.x_axis.title = 'Time [min]'
+        chartObj.y_axis.title = '%PID [%]'
+        chartObj.y_axis.scaling.max = 100
+        x = 1
+        y = 6
+
+        for i in range(0, len(sheetNames), 1):
+            if sheetNames[i] in wb.sheetnames:
+                xvalues = openpyxl.chart.Reference(wb[sheetNames[i]], min_col=x, min_row=2, max_col=x, max_row=len(times) + 1)
+                yvalues = openpyxl.chart.Reference(wb[sheetNames[i]], min_col=y, min_row=2, max_col=y, max_row=len(times) + 1)
+                seriesObj = openpyxl.chart.Series(yvalues, xvalues, title=str(sheetNames[i]))
+                seriesObj.marker = openpyxl.chart.marker.Marker('circle')
+                chartObj.append(seriesObj)
+
+        sheet.add_chart(chartObj)

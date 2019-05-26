@@ -207,7 +207,9 @@ class Application(tk.Frame):
         self.gFrame2 = ttk.Frame(self.tabInfo, style='My.TFrame')
         self.gFrame2.grid(row=2, rowspan=2, column=1, sticky='W', padx=5)
         self.tFrame = ttk.Frame(self.tabInfo, style='My.TFrame')
-        self.tFrame.grid(row=2, column=2, sticky='W', padx=5)
+        self.tFrame.grid(row=4, column=0, sticky='W', padx=5)
+        self.pFrame = ttk.Frame(self.tabInfo, style='My.TFrame')
+        self.pFrame.grid(row=2, column=2, sticky='W', padx=5)
 
         self.canvas = FigureCanvasTkAgg(self.f, self.gFrame)
         self.canvas.show()
@@ -265,6 +267,7 @@ class Application(tk.Frame):
         self.canvas.draw()
         self.canvas2.draw()
 
+        self.elImage()
         self.table()
 
     def table(self):
@@ -325,6 +328,32 @@ class Application(tk.Frame):
                 ttk.Label(self.tFrame, text=labelI, style='My.TLabel').grid(row=i + 2, column=columnI, padx=5, sticky='WE')
                 ttk.Label(self.tFrame, text=labelV, style='My.TLabel').grid(row=i + 2, column=columnV, padx=5, sticky='WE')
                 ttk.Label(self.tFrame, text=labelF, style='My.TLabel').grid(row=i + 2, column=columnF, padx=5, sticky='WE')
+
+
+    def elImage(self):
+        print(self.hours[-1])
+        for widget in self.tFrame.winfo_children():
+            print(widget)
+            widget.destroy()
+        name = self.wbName.split('.')[0] + '.jpg'
+        file = self.filePath + self.hours[-1] + '-' + name
+        print(file)
+        if os.path.exists(file):
+            img = Image.open(file)
+            hsize = 400
+            hpercent = (hsize/float(img.size[1]))
+            basewidth = int((float(img.size[0]) * float(hpercent))) #1120
+            if basewidth > 1000:
+                basewidth = 1000  # 70 voor zelfde breedte
+                wpercent = (basewidth / float(img.size[0]))
+                hsize = int((float(img.size[1]) * float(wpercent)))
+            img = img.resize((basewidth, hsize), Image.ANTIALIAS)
+            img = ImageTk.PhotoImage(img)
+            label1 = Label(self.pFrame, image=img, background='white')
+            label1.image = img
+            label1.grid(row=0, column=0, padx=5, pady=(5, 5),
+                        sticky='W')  # , columnspan=2) #pady=(0,5) voor breedte
+
 
     def selectMachine(self):
         if self.machineRb.get() == 1:

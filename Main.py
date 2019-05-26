@@ -147,6 +147,8 @@ class Main():
 
         if (photoCb):
             # os.rename(os.path.dirname(os.path.dirname(path)) + '/' + str(wbNameImg) + '.jpg', path + str(hours[-1]) + '-' + str(wbNameImg) + '.jpg')
+            if os.path.exists(path + str(hours[-1]) + '-' + str(wbNameImg) + '.jpg'):
+                os.remove(path + str(hours[-1]) + '-' + str(wbNameImg) + '.jpg')
             os.rename(str(wbNameImg) + '.jpg', path + str(hours[-1]) + '-' + str(wbNameImg) + '.jpg')
         print('Saving...')
         dataType = ''

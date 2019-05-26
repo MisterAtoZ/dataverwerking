@@ -1,4 +1,7 @@
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageChops
+import cv2
+import numpy as np
+import os
 
 class Photo():
 
@@ -19,6 +22,7 @@ class Photo():
             lines.append(text)
         else:
             text = text.replace('_', ' ')
+            text = text.replace('-', ' ')
             # split the line by spaces to get words
             words = text.split(' ')
             i = 0
@@ -41,10 +45,11 @@ class Photo():
         make a blue-gray image with a white title and save it with the name "title paramter".jpg
         :param title: name for the saved image + .jpg
         """
-        MAX_W, MAX_H = 6000, 4000
+        # MAX_W, MAX_H = 6000, 4000
+        MAX_W, MAX_H = 300, 300
         img = Image.new('RGB', (MAX_W, MAX_H), color = (73,109,137))
         d = ImageDraw.Draw(img)
-        fnt = ImageFont.truetype('C:/Windows/Fonts/Arial.ttf', size=750, encoding='unic')
+        fnt = ImageFont.truetype('C:/Windows/Fonts/Arial.ttf', size=45, encoding='unic')
         color = 'rgb(255, 255, 255)'
 
         lines = Photo.text_wrap(title, fnt, MAX_W)
@@ -61,7 +66,7 @@ class Photo():
             linenr = linenr + 1
         # save the image
         img.save(title + '.jpg')
-        Photo.resize(title + '.jpg', title)
+        # Photo.resize(title + '.jpg', title)
 
     def resize(img, title):
         """
@@ -71,10 +76,16 @@ class Photo():
         :param img: imgage that is being resized
         :param title: name for the saved image + .jpg
         """
-        img = Image.open(img)
+        print('image')
+        print(img)
+
+        img = Photo.crop(img)
+        # img = Image.open(img)
+        # basewidth = 300
+        # wpercent = (basewidth / float(img.size[0]))
+        # hsize = int((float(img.size[1]) * float(wpercent)))
         basewidth = 300
-        wpercent = (basewidth / float(img.size[0]))
-        hsize = int((float(img.size[1]) * float(wpercent)))
+        hsize = 300
         img = img.resize((basewidth, hsize), Image.ANTIALIAS)
         img.save(title + '.jpg')
 
@@ -113,3 +124,103 @@ class Photo():
                 x_offset += im.size[0]
 
         new_im.save(name + '.jpg')
+
+
+    def crop(image):
+        print(image)
+        img = cv2.imread(image)
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        cv2.imwrite('gray.jpg', gray)
+        imgG = Image.open('gray.jpg')
+        r = np.array(imgG)
+        w, h = imgG.size
+        print(w)
+        print(h)
+        # zero_row_indices = [i for i in r.shape[0] if np.allclose(r[i,:],0)]
+        # nonzero_row_indices =[i for i in r.shape[0] if not np.allclose(r[i,:],0)]
+        print(r.shape)
+        print(np.mean(r))
+        limit = np.mean(r)
+        step = 100
+        procent = 20
+        col1 = 1 - step
+        col2 = w-1 + step #6000 + step
+        firstCol = False
+        for y in range(1, w-1, step):
+            col_vec = []
+            for x in range(1, h-1):
+                if r[x, y] < limit:
+                    col_vec.append(x)
+
+            if len(col_vec) > h-h/procent:
+                # print(y)
+                # print(col1)
+                # print(col2)
+                # print('---')
+                if col1 == y - step:
+                    col1 = y
+                else:
+                    firstCol = True
+            if firstCol:
+                break
+
+        secondCol = False
+        for y in range(w-1, 1, -step):
+            col_vec = []
+            for x in range(1, h-1):
+                if r[x, y] < limit:
+                    col_vec.append(x)
+            if len(col_vec) > h-h/procent:
+                # print(y)
+                # print(col1)
+                # print(col2)
+                # print('---')
+                if col2 == y + step:
+                    col2 = y
+                else:
+                    secondCol = True
+            if secondCol:
+                break
+
+        row1 = 1 - step
+        row2 = h-1 + step #4000 + step
+        firstRow = False
+        for x in range(1, h-1, step):
+            row_vec = []
+            for y in range(1, w-1):
+                if r[x, y] < limit:
+                    row_vec.append(x)
+
+            if len(row_vec) > w-w/procent:
+                # print(y)
+                # print(col1)
+                # print(col2)
+                # print('---')
+                if row1 == x - step:
+                    row1 = x
+                else:
+                    firstRow = True
+            if firstRow:
+                break
+
+        secondRow = False
+        for x in range(h-1, 1, -step):
+            row_vec = []
+            for y in range(1, w-1):
+                if r[x, y] < limit:
+                    row_vec.append(x)
+            if len(row_vec) > w-w/procent:
+                # print(y)
+                # print(col1)
+                # print(col2)
+                # print('---')
+                if row2 == x + step:
+                    row2 = x
+                else:
+                    secondRow = True
+            if secondRow:
+                break
+        os.remove('gray.jpg')
+        img = Image.open(image)
+        img = img.crop((col1, row1, col2, row2))
+        return img

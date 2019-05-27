@@ -147,9 +147,9 @@ class Main():
 
         if (photoCb):
             # os.rename(os.path.dirname(os.path.dirname(path)) + '/' + str(wbNameImg) + '.jpg', path + str(hours[-1]) + '-' + str(wbNameImg) + '.jpg')
-            if os.path.exists(path + str(hours[-1]) + '-' + str(wbNameImg) + '.jpg'):
-                os.remove(path + str(hours[-1]) + '-' + str(wbNameImg) + '.jpg')
-            os.rename(str(wbNameImg) + '.jpg', path + str(hours[-1]) + '-' + str(wbNameImg) + '.jpg')
+            if os.path.exists(path + str(subfolders[-1]) + '-' + str(wbNameImg) + '.jpg'):
+                os.remove(path + str(subfolders[-1]) + '-' + str(wbNameImg) + '.jpg')
+            os.rename(str(wbNameImg) + '.jpg', path + str(subfolders[-1]) + '-' + str(wbNameImg) + '.jpg')
         print('Saving...')
         dataType = ''
         if(ivCb):
@@ -157,8 +157,8 @@ class Main():
         if(eqeCb) :
             dataType = dataType + 'eqe-'
 
-        wb.save(path + str(subfolders[len(subfolders) - 1]) + '-' + dataType + wbName)
-        print(path + str(subfolders[len(subfolders) - 1]) + '-' + dataType + wbName)
+        wb.save(path + str(subfolders[-1]) + '-' + dataType + wbName)
+        print(path + str(subfolders[-1]) + '-' + dataType + wbName)
         return True
 
         # except:
@@ -251,7 +251,7 @@ class Main():
         #
         # return False
 
-    def beginSm(self, wbName, filePath):
+    def beginSm(self, wbName, filePath, hours):
         #try:
         wb = openpyxl.load_workbook(filePath + wbName, data_only=True)
         sheetNames = [f.name for f in os.scandir(filePath) if f.is_dir()]
@@ -259,17 +259,25 @@ class Main():
         for n in sheetNames:
             activeSheet = wb[n]
             modulePath = filePath + '/' + n
-            hours = []
-            files = [f.name for f in os.scandir(modulePath)]
-            for f in files:
-                if f.endswith('.csv'):
-                    hours.append(f[:-4])
-            hoursSorted = WorkbookLayout.WorkbookLayout.natural_sort(hours)
+            # hours = []
+            # files = [f.name for f in os.scandir(modulePath)]
+            # for f in files:
+            #     if f.endswith('.csv') and not f.startswith('Rsh'):
+            #         hours.append(f[:-4])
+            print(hours)
+            # hoursSorted = WorkbookLayout.WorkbookLayout.natural_sort(hours)
+            # hours.sort(key=int)
+            hoursSorted = hours
             print(hoursSorted)
             for h in hoursSorted:
-                iv = Data.Data.getDataListSm(str(modulePath) + '/' + h + '.csv')
-                WorkbookLayout.WorkbookLayout.setIVSm(activeSheet, h, iv)
+                #if file exists
+                iv = Data.Data.getDataListSm(str(modulePath) + '/' + str(h) + '.csv')
+                WorkbookLayout.WorkbookLayout.setIVSm(activeSheet, str(h), iv)
             Grafieken.Grafieken.makeChartPscSm(n, wb, hoursSorted, 'Sm')
+            rsh = Data.Data.getDataListSm(str(modulePath) + '/' + 'Rsh.csv')
+            WorkbookLayout.WorkbookLayout.setRsh(wb, rsh, n)
+        Grafieken.Grafieken.makeChartRsh(wb, sheetNames)
+
         print('Saving...')
         wb.save(filePath + str(hoursSorted[len(hoursSorted) - 1]) + '-' + wbName)
         return True

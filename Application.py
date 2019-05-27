@@ -86,6 +86,9 @@ class Application(tk.Frame):
         self.tabInfo = ttk.Frame(tabControl, style='My.TFrame')
         tabControl.add(self.tabInfo, text='Info')
 
+        self.tabEl = ttk.Frame(tabControl, style='My.TFrame')
+        tabControl.add(self.tabEl, text='EL')
+
         #variables
         self.f = Figure(figsize=(4, 4), dpi=100)
         self.ax = self.f.add_subplot(111)
@@ -101,6 +104,8 @@ class Application(tk.Frame):
         self.sampleRb = tk.IntVar()
         self.hourVar = tk.IntVar()
         self.hourVar2 = tk.IntVar()
+        self.timeCb = tk.IntVar()
+        self.timeInt = tk.IntVar()
         self.fileVar = tk.StringVar()
         self.comboVar = tk.StringVar()
         self.comboList = []     # nr + file
@@ -130,7 +135,7 @@ class Application(tk.Frame):
 
         #Processing
             # Machine choise
-        ttk.Separator(self.tabBifi, orient=HORIZONTAL, style='My.TSeparator').grid(row=0, columnspan=6, sticky='WE', padx=5)
+        ttk.Separator(self.tabBifi, orient=HORIZONTAL, style='My.TSeparator').grid(row=0, columnspan=10, sticky='WE', padx=5)
         self.machineLabel = ttk.Label(self.tabBifi, text='Select machine', style='My.TLabel').grid(sticky='W', row=0, column=0, columnspan=2, padx=10)
         self.RbLoana = ttk.Radiobutton(self.tabBifi, text='LOANA', variable=self.machineRb, value=1, style='My.TRadiobutton', command = lambda:self.selectMachine())\
             .grid(row=1,sticky='W', padx=5, pady=(0,5))
@@ -141,7 +146,7 @@ class Application(tk.Frame):
                                         style='My.TRadiobutton', command=lambda: self.selectMachine()) \
             .grid(row=1, column=2, sticky='W', pady=(0,5))
         self.machineRb.set(1)
-        ttk.Separator(self.tabBifi, orient=HORIZONTAL, style='My.TSeparator').grid(row=2, columnspan=6, sticky='WE', padx=5)
+        ttk.Separator(self.tabBifi, orient=HORIZONTAL, style='My.TSeparator').grid(row=2, columnspan=10, sticky='WE', padx=5)
             # Hour choise
         self.hourLabel = ttk.Label(self.tabBifi, text='Stressing duration?', style='My.TLabel').grid(sticky='W', row=2, column=0, columnspan=3, padx=10)
         self.hourRbAll = ttk.Radiobutton(self.tabBifi, text='All', variable=self.hourRb, value=1,style='My.TRadiobutton').grid(row=3, sticky='W', padx=5)
@@ -152,7 +157,12 @@ class Application(tk.Frame):
         self.hourLabel = ttk.Label(self.tabBifi, text='and', style='My.TLabel').grid(sticky='W', row=3,column=3,padx=5)
         self.hourInput2 = ttk.Entry(self.tabBifi, textvariable=self.hourVar2)
         self.hourInput2.grid(sticky='WE', row=3, column=4, pady=5, padx=(5, 5))
-        ttk.Separator(self.tabBifi, orient=HORIZONTAL, style='My.TSeparator').grid(row=4, columnspan=6, sticky='WE', padx=5)
+        self.timeInterval = ttk.Checkbutton(self.tabBifi, text="Data every", variable=self.timeCb, onvalue=1, offvalue=0,style='My.TCheckbutton')
+        self.timeInterval.grid(row=3, column=5, sticky='W', padx=5, pady=5)
+        self.timeInput = ttk.Entry(self.tabBifi, textvariable=self.timeInt)
+        self.timeInput.grid(sticky='WE', row=3, column=6, pady=5, padx=(5, 5))
+        self.everyTimeLabel = ttk.Label(self.tabBifi, text='min', style='My.TLabel').grid(sticky='W', row=3, column=7, padx=5)
+        ttk.Separator(self.tabBifi, orient=HORIZONTAL, style='My.TSeparator').grid(row=4, columnspan=10, sticky='WE', padx=5)
             # Excel file
         self.excelLabel = ttk.Label(self.tabBifi, text='Select Excel file', style='My.TLabel').grid(sticky='W',row=4,column=0,columnspan=2, padx=10)
         #self.configLabel = ttk.Label(self.tabBifi, text='Select previous configuration', style='My.TLabel').grid(sticky='W',row=1,column=3)
@@ -164,13 +174,13 @@ class Application(tk.Frame):
         # self.rmBtn.bind('<ButtonRelease-1>', self.remove)
         # self.rmBtn.grid(sticky='WE', row=5, column=4, padx=5)
         self.fileInput = ttk.Entry(self.tabBifi, textvariable=self.fileVar)
-        self.fileInput.grid(row=6, column=1, columnspan=5, sticky='WE', padx=5, pady=5)
+        self.fileInput.grid(row=6, column=1, columnspan=8, sticky='WE', padx=5, pady=5)
         self.fileBtn = ttk.Button(self.tabBifi, text='Select file', style='My.TButton')
         self.fileBtn.bind('<ButtonRelease-1>', self.pickFile)
         self.fileBtn.grid(sticky='WE', row=6, column=0, padx=5, pady=5)
         # self.fileBtn.config(width=9)
             # Data choise
-        ttk.Separator(self.tabBifi, orient=HORIZONTAL, style='My.TSeparator').grid(row=7, columnspan=6, sticky='WE', padx=5)
+        ttk.Separator(self.tabBifi, orient=HORIZONTAL, style='My.TSeparator').grid(row=7, columnspan=10, sticky='WE', padx=5)
         self.dataLabel = ttk.Label(self.tabBifi, text='Select data types', style='My.TLabel').grid(sticky='W', row=7, column=0,columnspan=2, padx=10)
         self.iv = ttk.Checkbutton(self.tabBifi, text="IV", variable=self.ivCb, onvalue=1, offvalue=0,style='My.TCheckbutton')
         self.iv.grid(row=8, column=0, sticky='W', padx=5, pady=5)
@@ -192,10 +202,10 @@ class Application(tk.Frame):
         img = ImageTk.PhotoImage(img)
         label1 = Label(self.tabBifi, image=img, background='white')
         label1.image = img
-        label1.grid(row=0, column=5, columnspan=2, padx=5, pady=(5,5), sticky='E')#, columnspan=2) #pady=(0,5) voor breedte
+        label1.grid(row=0, column=6, columnspan=2, padx=5, pady=(5,5), sticky='E')#, columnspan=2) #pady=(0,5) voor breedte
 
         #configure column 2 to stretch with the window
-        self.tabBifi.grid_columnconfigure(5, weight=1)
+        self.tabBifi.grid_columnconfigure(7, weight=1)
 
         #Info
         self.cbFrame = ttk.Frame(self.tabInfo, style='My.TFrame')
@@ -208,8 +218,7 @@ class Application(tk.Frame):
         self.gFrame2.grid(row=2, rowspan=2, column=1, sticky='W', padx=5)
         self.tFrame = ttk.Frame(self.tabInfo, style='My.TFrame')
         self.tFrame.grid(row=4, column=0, sticky='W', padx=5)
-        self.pFrame = ttk.Frame(self.tabInfo, style='My.TFrame')
-        self.pFrame.grid(row=2, column=2, sticky='W', padx=5)
+
 
         self.canvas = FigureCanvasTkAgg(self.f, self.gFrame)
         self.canvas.show()
@@ -231,6 +240,12 @@ class Application(tk.Frame):
 
         # myscrollbar = Scrollbar(self.tabInfo, orient="vertical")
         # myscrollbar.grid(row=1, column=3, sticky='E', rowspan=100)
+
+        # EL
+        self.pFrame = ttk.Frame(self.tabEl, style='My.TFrame')
+        self.pFrame.grid(row=0, column=0, sticky='W', padx=5)
+        self.tFrameEl = ttk.Frame(self.tabEl, style='My.TFrame')
+        self.tFrameEl.grid(row=1, column=0, sticky='W', padx=5)
 
     def graph(self):
         self.ax.clear()
@@ -332,11 +347,14 @@ class Application(tk.Frame):
 
     def elImage(self):
         print(self.hours[-1])
-        for widget in self.tFrame.winfo_children():
+
+        # EL image
+        for widget in self.pFrame.winfo_children():
             print(widget)
             widget.destroy()
-        name = self.wbName.split('.')[0] + '.jpg'
-        file = self.filePath + self.hours[-1] + '-' + name
+        name = self.wbName.split('.')[0]
+        photoName = name + '.jpg'
+        file = self.filePath + self.hours[-1] + '-' + photoName
         print(file)
         if os.path.exists(file):
             img = Image.open(file)
@@ -353,6 +371,46 @@ class Application(tk.Frame):
             label1.image = img
             label1.grid(row=0, column=0, padx=5, pady=(5, 5),
                         sticky='W')  # , columnspan=2) #pady=(0,5) voor breedte
+
+
+        # EL table
+
+        for widget in self.tFrameEl.winfo_children():
+            print(widget)
+            widget.destroy()
+        print(self.hours[-1])
+        print(self.filePath + self.hours[-1] + '-' + self.wbName)
+        dirname = self.filePath
+        filespec = self.hours[-1] + '-' + '*' + self.wbName
+        print(glob.glob(os.path.join(dirname,filespec)))
+        file = glob.glob(os.path.join(dirname,filespec))[0]
+        if os.path.exists(file):
+
+            self.titleN = ttk.Label(self.tFrameEl, text=name, style='My.TLabel').grid(sticky='NW', row=0,column=0, padx=5)
+            # ttk.Separator(self.tFrameEl, orient=VERTICAL, style='My.TSeparator').grid(row=0, column=1,rowspan=len(self.samples)*2,sticky='NS')
+
+            # hour titles
+            for h in range(0, len(self.hours)):
+                self.titleH = ttk.Label(self.tFrameEl, text=self.hours[h] + ' h', style='My.TLabel').grid(sticky='NW', row=0,column=h+1, padx=5)
+                # ttk.Separator(self.tFrame, orient=VERTICAL, style='My.TSeparator').grid(row=0, column=h+2,rowspan=len(self.hours) + 2,sticky='NS')
+
+            # ttk.Separator(self.tFrameEl, orient=HORIZONTAL, style='My.TSeparator').grid(row=1,columnspan=len(self.hours) * 2,sticky='WE', padx=5)
+
+            for n in range(0,len(self.samples)):
+                self.titleN = ttk.Label(self.tFrameEl, text=self.samples[n], style='My.TLabel').grid(sticky='NW', row=n+1,column=0, padx=5)
+
+
+            for n in range(0, len(self.samples)):
+                for h in range(0, len(self.hours)):
+                    wb = openpyxl.load_workbook(file, data_only=True)
+                    activeSheet = wb[self.samples[n]]
+                    if activeSheet.cell(row=h + 2, column=17).value is not None:
+                        labelP = round(activeSheet.cell(row=h + 2, column=17).value, 2)
+                    else:
+                        labelP = ''
+                    self.titleP = ttk.Label(self.tFrameEl, text=labelP, style='My.TLabel').grid(sticky='NW', row=n+1, column=h+1,padx=5)
+
+
 
 
     def selectMachine(self):
@@ -438,21 +496,43 @@ class Application(tk.Frame):
 
                 print(self.samples)
                 if self.samples != []:
-                    if self.machineRb.get() == 1:
-                        # wb = openpyxl.load_workbook(self.filename, data_only=True)
-                        # self.hours = AlgemeneInfo.AlgemeneInfo.calculateHours(self, wb)
-                        # for i in range(0, len(self.hours), 1):
-                        #     self.hours[i] = int(round(self.hours[i], 0))
-                        subfolders = [f.name for f in os.scandir(self.filePath) if f.is_dir()]
-                        subfolders.sort(key=float)
-                        self.hours = subfolders
-                    elif self.machineRb.get() == 3:
-                        print(self.samples[0])
-                        modulePath = self.filePath + self.samples[0]
-                        files = [f.name for f in os.scandir(modulePath)]
-                        for f in files:
-                            if f.endswith('.csv'):
-                                self.hours.append(f[:-4])
+                    # #LOANA
+                    # if self.machineRb.get() == 1:
+                    #     # wb = openpyxl.load_workbook(self.filename, data_only=True)
+                    #     # self.hours = AlgemeneInfo.AlgemeneInfo.calculateHours(self, wb)
+                    #     # for i in range(0, len(self.hours), 1):
+                    #     #     self.hours[i] = int(round(self.hours[i], 0))
+                    #     subfolders = [f.name for f in os.scandir(self.filePath) if f.is_dir()]
+                    #     subfolders.sort(key=float)
+                    #     self.hours = subfolders
+                    # #Switch matrix
+                    # elif self.machineRb.get() == 3:
+                    #     print(self.samples[0])
+                    #     modulePath = self.filePath + self.samples[0]
+                    #     files = [f.name for f in os.scandir(modulePath)]
+                    #     for f in files:
+                    #         print(f)
+                    #         if f.endswith('.csv') and not f.startswith('Rsh'):
+                    #             self.hours.append(f[:-4])
+                    #     self.hours.sort(key=int)
+                    #     if self.timeCb.get() == 1:
+                    #         print('---timeCb---')
+                    #         threshold = int(self.timeInt.get())
+                    #         times = self.hours
+                    #         self.hours = [0]
+                    #         lastVal = 0
+                    #         print(times)
+                    #         # times.sort(key=int)
+                    #         print(times)
+                    #         for h in times:
+                    #             if int(h) >= int(lastVal) + int(threshold):
+                    #                 self.hours.append(int(h))
+                    #                 lastVal = int(h)
+                    #
+                    #         print('---hours----')
+                    #         print(self.hours)
+
+
 
                     print('add checkboxes')
 
@@ -544,6 +624,9 @@ class Application(tk.Frame):
         is called by beginBtn
         """
         print('beginBifi')
+        subfolders = [f.name for f in os.scandir(self.filePath) if f.is_dir()]
+        subfolders.sort(key=float)
+        self.hours = subfolders
         #wbName
         # self.filePath=''
         # filenameSplit = self.fileInput.get().split('/')
@@ -648,7 +731,38 @@ class Application(tk.Frame):
         #     self.filePath = self.filePath + str(filenameSplit[i]) + '/'
         # wbName = filenameSplit[len(filenameSplit)-1]
 
+        print(self.samples[0])
+        modulePath = self.filePath + self.samples[0]
+        files = [f.name for f in os.scandir(modulePath)]
+        for f in files:
+            print(f)
+            if f.endswith('.csv') and not f.startswith('Rsh'):
+                self.hours.append(f[:-4])
+        self.hours.sort(key=int)
 
+        if self.hourRb.get() == 2:
+            times = self.hours
+            self.hours = []
+            for h in times:
+                if int(self.hourInput.get()) <= int(h) and int(h) <= int(self.hourInput2.get()):
+                    self.hours.append(int(h))
+        print(self.hours)
+        if self.timeCb.get() == 1:
+            print('---timeCb---')
+            threshold = int(self.timeInt.get())
+            times = self.hours
+            self.hours = [0]
+            lastVal = 0
+            print(times)
+            # times.sort(key=int)
+            print(times)
+            for h in times:
+                if int(h) >= int(lastVal) + int(threshold):
+                    self.hours.append(int(h))
+                    lastVal = int(h)
+
+            print('---hours----')
+            print(self.hours)
 
         # check if all variables are set correctly
         # yes: begin
@@ -662,7 +776,7 @@ class Application(tk.Frame):
         if(self.fileInput.get().endswith('.xlsx')):
             self.errorLabel.config(text='Running...')
             self.errorLabel.update()
-            if Main.Main.beginSm(self, self.wbName, self.filePath): #self.panelInput.get(),
+            if Main.Main.beginSm(self, self.wbName, self.filePath, self.hours): #self.panelInput.get(),
                 self.errorLabel.config(text='File saved')
 
                 # configText = 'Sm|' + self.fileInputSm.get()

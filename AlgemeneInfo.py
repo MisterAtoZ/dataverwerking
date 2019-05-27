@@ -99,7 +99,7 @@ class AlgemeneInfo():
 
                 previousHour = generalSheet.cell(row=i, column=5).value
             hours.append(previousHour)
-
+        print (hours)
         return hours
 
 

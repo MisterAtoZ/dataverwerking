@@ -238,13 +238,37 @@ class WorkbookLayout():
             activeSheet.cell(row=j + 3, column=column1).value = i[j]
             activeSheet.cell(row=j + 3, column=column2).value = v[j]
 
-    def natural_sort(l):
-        """
-        sorts a list in a natural way, this means lower number values come first in the list
-        :param l: list which needs to be sorted
-        :return: sorted list
-        source: https://stackoverflow.com/questions/4836710/does-python-have-a-built-in-function-for-string-natural-sort
-        """
-        convert = lambda text: int(text) if text.isdigit() else text.lower()
-        alphanum_key = lambda key: [convert(c) for c in re.split('([0-9]+)', key)]
-        return sorted(l, key=alphanum_key)
+    def setRsh(wb, data, module):
+        hours = data[1]
+        rsh = data[0]
+
+        sheet = wb['Blad1']
+
+        if sheet.max_column == 1:
+            column1 = sheet.max_column
+            column2 = sheet.max_column + 1
+        else:
+            column1 = sheet.max_column + 2
+            column2 = sheet.max_column + 3
+
+        sheet.cell(row=1, column=column1).value = module
+
+        sheet.cell(row=2, column=column1).value = 'hours'
+        sheet.cell(row=2, column=column2).value = 'Rsh'
+
+
+        for j in range(0, len(hours), 1):
+            sheet.cell(row=j + 3, column=column1).value = hours[j]
+            sheet.cell(row=j + 3, column=column2).value = rsh[j]
+
+
+    # def natural_sort(l):
+    #     """
+    #     sorts a list in a natural way, this means lower number values come first in the list
+    #     :param l: list which needs to be sorted
+    #     :return: sorted list
+    #     source: https://stackoverflow.com/questions/4836710/does-python-have-a-built-in-function-for-string-natural-sort
+    #     """
+    #     convert = lambda text: int(text) if text.isdigit() else text.lower()
+    #     alphanum_key = lambda key: [convert(c) for c in re.split('([0-9]+)', key)]
+    #     return sorted(l, key=alphanum_key)

@@ -194,3 +194,22 @@ class Grafieken():
                 chartObj.append(seriesObj)
 
         sheet.add_chart(chartObj)
+
+    def makeChartRsh(wb, modules):
+        sheet = wb['Blad1']
+
+        chartObj = openpyxl.chart.ScatterChart()
+        chartObj.legend.position = 'b'
+
+        chartObj.x_axis.title = 'Time [min]'
+        chartObj.y_axis.title = 'Rsh [Ohm]'
+
+        for m in range(0, len(modules)):
+            y = 1+m*3
+            x = y+1
+            xvalues = openpyxl.chart.Reference(sheet, min_col=x, min_row=3, max_col=x,max_row=sheet.max_row)
+            yvalues = openpyxl.chart.Reference(sheet, min_col=y, min_row=3, max_col=y, max_row=sheet.max_row)
+            seriesObj = openpyxl.chart.Series(yvalues, xvalues, title=modules[m])
+            chartObj.append(seriesObj)
+
+        sheet.add_chart(chartObj)

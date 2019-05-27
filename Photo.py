@@ -250,7 +250,7 @@ class Photo():
         print(np.mean(r))
         threshold = np.mean(r)
 
-        ret, thresh = cv2.threshold(gray, threshold + 5, 255, cv2.THRESH_BINARY)
+        ret, thresh = cv2.threshold(gray, threshold, 255, cv2.THRESH_BINARY)
 
 
         # try:

@@ -1,5 +1,7 @@
+import openpyxl
+
 class AlgemeneInfo():
-    def datasheet(workbook, sheetNames, dataEx, maxHour, subfolders):
+    def datasheet(workbook, hours, sheetNames, dataEx, subfolders):
         """
         calculates the hours and set these values in the general sheet,
         puts the data from dataEx in the correct sheets,
@@ -13,15 +15,7 @@ class AlgemeneInfo():
         """
         wb = workbook
         data = dataEx['data-exchange']
-        generalSheet = wb['General']
-
-        # calculate the row with the first stressed hour
-        for i in range(1, generalSheet.max_row, 1):
-            if generalSheet.cell(row=i, column=5).value == 'Acc. Hours  [h]':
-                beginRow = i + 2
-                print('beginRow : ' + str(beginRow))
-
-        hours = AlgemeneInfo.calculateHours(wb)
+        # hours = AlgemeneInfo.calculateHours(wb)
         print('algemene info')
 
         # fill in dataEx data in correct sheets
@@ -39,28 +33,29 @@ class AlgemeneInfo():
             for rows in range(begin, 2+len(hours), 1):
                 hourInt = int(round(hours[rows-2],0))
                 hourRounded = round(hours[rows-2],2)
-                if hourInt <= int(maxHour) or maxHour == -1:
-                    print(hourRounded)
-                    sheet.cell(row=nextRow, column=1).value = hourRounded
-                    for i in range(4,data.max_row,len(sheetNames)):
-                        if (str(data.cell(row=i, column=1).value) == str(hourInt)) or (str(data.cell(row=i, column=1).value) == str(subfolders[rows-2])):
-                            for j in range(i,i+len(sheetNames),1):
-                                if (str(data.cell(row=j, column=2).value) == sheetNames[n]):
-                                    for k in range(2, 13, 1):
-                                        sheet.cell(row=nextRow, column=k).value = data.cell(row=j, column=k + 7).value
-                                    if (sheet.cell(row=nextRow,column=4).value is not None) and (sheet.cell(row=2, column=4).value is not None):
-                                        sheet.cell(row=nextRow, column=17).value = 100 - 100 * sheet.cell(row=nextRow,column=4).value / sheet.cell(row=2, column=4).value
-                                    nextRow = nextRow + 1
-                else:
-                    hours = hours[:rows-2]
-                    break
+                # if hourInt <= int(maxHour) or maxHour == -1:
+                print(hourRounded)
+                sheet.cell(row=nextRow, column=1).value = hourRounded
+                for i in range(4,data.max_row,len(sheetNames)):
+                    if (str(data.cell(row=i, column=1).value) == str(hourInt)) or (str(data.cell(row=i, column=1).value) == str(subfolders[rows-2])):
+                        for j in range(i,i+len(sheetNames),1):
+                            if (str(data.cell(row=j, column=2).value) == sheetNames[n]):
+                                for k in range(2, 13, 1):
+                                    sheet.cell(row=nextRow, column=k).value = data.cell(row=j, column=k + 7).value
+                                if (sheet.cell(row=nextRow,column=4).value is not None) and (sheet.cell(row=2, column=4).value is not None):
+                                    sheet.cell(row=nextRow, column=17).value = 100 - 100 * sheet.cell(row=nextRow,column=4).value / sheet.cell(row=2, column=4).value
+                                nextRow = nextRow + 1
+                # else:
+                #     hours = hours[:rows-2]
+                #     break
 
         for i in range(0, len(hours),1):
             hours[i] = int(round(hours[i],0))
         return [begin, hours]
 
+    def calculateHours(wbName, path):
 
-    def calculateHours(wb):
+        wb = openpyxl.load_workbook(path + wbName, data_only=True)
         generalSheet = wb['General']
 
         # calculate the row with the first stressed hour
@@ -100,6 +95,8 @@ class AlgemeneInfo():
                 previousHour = generalSheet.cell(row=i, column=5).value
             hours.append(previousHour)
         print (hours)
+
+        wb.save(path + wbName)
         return hours
 
 

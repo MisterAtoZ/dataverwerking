@@ -9,16 +9,16 @@ from os import listdir
 
 class Main():
     # hours ipv maxHour
-    def beginBifi(self, maxHour, wbName, path, ivCb, eqeCb, photoCb):
+    def beginBifi(self, hours, subfolders, wbName, path, ivCb, eqeCb, photoCb):
         # try:
         print('-------------')
-        print(maxHour)
+        print(hours)
         print(wbName)
         print(path)
 
         graphNames = ['%PID', 'FF', 'Voc', 'Isc']
-        subfolders = [f.name for f in os.scandir(path) if f.is_dir()]
-        subfolders.sort(key=float)
+        # subfolders = [f.name for f in os.scandir(path) if f.is_dir()]
+        # subfolders.sort(key=float)
         sheetNames = [f.name for f in os.scandir(path + subfolders[0]) if f.is_dir()]
         print(sheetNames)
         print(len(sheetNames))
@@ -31,7 +31,7 @@ class Main():
                     data_exchange = f
                     dataEx = openpyxl.load_workbook(path + data_exchange)
                     WorkbookLayout.WorkbookLayout.makeSheets(wb, dataEx, graphNames, sheetNames, eqeCb)
-                    info = AlgemeneInfo.AlgemeneInfo.datasheet(wb, sheetNames, dataEx, maxHour, subfolders)
+                    info = AlgemeneInfo.AlgemeneInfo.datasheet(wb, hours, sheetNames, dataEx, subfolders)
                     begin = info[0]
                     hours = info[1]
                     print('hours : ' + str(hours))
@@ -41,7 +41,7 @@ class Main():
                     data_exchange = f
                     dataEx = openpyxl.load_workbook(path + subfolders[len(subfolders) - 1] + '/' + data_exchange)
                     WorkbookLayout.WorkbookLayout.makeSheets(wb, dataEx, graphNames, sheetNames, eqeCb)
-                    info = AlgemeneInfo.AlgemeneInfo.datasheet(wb, sheetNames, dataEx, maxHour, subfolders)
+                    info = AlgemeneInfo.AlgemeneInfo.datasheet(wb, hours, sheetNames, dataEx, subfolders)
                     begin = info[0]
                     hours = info[1]
                     print('hours : ' + str(hours))

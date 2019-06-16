@@ -61,10 +61,10 @@ class Application(tk.Frame):
         tabControl.add(self.tabBifi, text='Processing')
 
         self.tabInfo = ttk.Frame(tabControl, style='My.TFrame')
-        tabControl.add(self.tabInfo, text='Info')
+        tabControl.add(self.tabInfo, text='Graphs')
 
-        self.tabEl = ttk.Frame(tabControl, style='My.TFrame')
-        tabControl.add(self.tabEl, text='EL')
+        # self.tabEl = ttk.Frame(tabControl, style='My.TFrame')
+        # tabControl.add(self.tabEl, text='EL')
 
         #variables
         self.f = Figure(figsize=(4, 4), dpi=100)
@@ -104,6 +104,8 @@ class Application(tk.Frame):
         self.comboListSm = [''] # nr + configContent
         self.configSm = []      # filepath
 
+        self.rsh = []
+
         #set variables if config file excists
         # try:
         #     self.readFile()
@@ -114,13 +116,13 @@ class Application(tk.Frame):
         #Processing
             # Machine choise
         ttk.Separator(self.tabBifi, orient=HORIZONTAL, style='My.TSeparator').grid(row=0, columnspan=10, sticky='WE', padx=5)
-        self.machineLabel = ttk.Label(self.tabBifi, text='Select machine', style='My.TLabel').grid(sticky='W', row=0, column=0, columnspan=2, padx=10)
+        self.machineLabel = ttk.Label(self.tabBifi, text='Select device', style='My.TLabel').grid(sticky='W', row=0, column=0, columnspan=2, padx=10)
         self.RbLoana = ttk.Radiobutton(self.tabBifi, text='LOANA', variable=self.machineRb, value=1, style='My.TRadiobutton', command = lambda:self.selectMachine())\
             .grid(row=1,sticky='W', padx=5, pady=(0,5))
-        self.RbThin = ttk.Radiobutton(self.tabBifi, text='Thin film', variable=self.machineRb, value=2, style='My.TRadiobutton', command=lambda: self.selectMachine())\
+        self.RbThin = ttk.Radiobutton(self.tabBifi, text='PME', variable=self.machineRb, value=2, style='My.TRadiobutton', command=lambda: self.selectMachine())\
             .grid(row=1, column=1,sticky='W', pady=(0,5))
         self.machineRb.set(1)
-        self.RbSwitch = ttk.Radiobutton(self.tabBifi, text='Switch matrix', variable=self.machineRb, value=3,
+        self.RbSwitch = ttk.Radiobutton(self.tabBifi, text='K2400', variable=self.machineRb, value=3,
                                         style='My.TRadiobutton', command=lambda: self.selectMachine()) \
             .grid(row=1, column=2, sticky='W', pady=(0,5))
         self.machineRb.set(1)
@@ -139,7 +141,8 @@ class Application(tk.Frame):
         self.timeInterval.grid(row=3, column=5, sticky='W', padx=5, pady=5)
         self.timeInput = ttk.Entry(self.tabBifi, textvariable=self.timeInt)
         self.timeInput.grid(sticky='WE', row=3, column=6, pady=5, padx=(5, 5))
-        self.everyTimeLabel = ttk.Label(self.tabBifi, text='min', style='My.TLabel').grid(sticky='W', row=3, column=7, padx=5)
+        self.everyTimeLabel = ttk.Label(self.tabBifi, text='h', style='My.TLabel')
+        self.everyTimeLabel.grid(sticky='W', row=3, column=7, padx=5)
         ttk.Separator(self.tabBifi, orient=HORIZONTAL, style='My.TSeparator').grid(row=4, columnspan=10, sticky='WE', padx=5)
             # Excel file
         self.excelLabel = ttk.Label(self.tabBifi, text='Select Excel file', style='My.TLabel').grid(sticky='W',row=4,column=0,columnspan=2, padx=10)
@@ -163,7 +166,7 @@ class Application(tk.Frame):
         self.iv.grid(row=8, column=0, sticky='W', padx=5, pady=5)
         self.eqe = ttk.Checkbutton(self.tabBifi, text="EQE", variable=self.eqeCb, onvalue=1, offvalue=0,style='My.TCheckbutton')
         self.eqe.grid(row=8, column=1, sticky='W', pady=5)
-        self.photo = ttk.Checkbutton(self.tabBifi, text="Photo", variable=self.photoCb, onvalue=1, offvalue=0,style='My.TCheckbutton')
+        self.photo = ttk.Checkbutton(self.tabBifi, text="EL picture", variable=self.photoCb, onvalue=1, offvalue=0,style='My.TCheckbutton')
         self.photo.grid(row=8, column=2, sticky='W', pady=5)
             # Start
         self.beginBtn = ttk.Button(self.tabBifi, text='Begin', command=self.begin, style='My.TButton')
@@ -193,7 +196,7 @@ class Application(tk.Frame):
         self.gFrame2 = ttk.Frame(self.tabInfo, style='My.TFrame')
         self.gFrame2.grid(row=2, rowspan=2, column=1, sticky='W', padx=5)
         self.tFrame = ttk.Frame(self.tabInfo, style='My.TFrame')
-        self.tFrame.grid(row=4, column=0, sticky='W', padx=5)
+        self.tFrame.grid(row=2, column=2, sticky='W', padx=5)
 
         self.canvas = FigureCanvasTkAgg(self.f, self.gFrame)
         self.canvas.show()
@@ -209,11 +212,11 @@ class Application(tk.Frame):
         self.toolbar.update()
         self.canvas2._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-        # EL
-        self.pFrame = ttk.Frame(self.tabEl, style='My.TFrame')
-        self.pFrame.grid(row=0, column=0, sticky='W', padx=5)
-        self.tFrameEl = ttk.Frame(self.tabEl, style='My.TFrame')
-        self.tFrameEl.grid(row=1, column=0, sticky='W', padx=5)
+        # # EL
+        # self.pFrame = ttk.Frame(self.tabEl, style='My.TFrame')
+        # self.pFrame.grid(row=0, column=0, sticky='W', padx=5)
+        # self.tFrameEl = ttk.Frame(self.tabEl, style='My.TFrame')
+        # self.tFrameEl.grid(row=1, column=0, sticky='W', padx=5)
 
     def graph(self):
         self.ax.clear()
@@ -228,79 +231,135 @@ class Application(tk.Frame):
                     div = Data.Data.getDataList(self.filePath + '/' + str(self.subfolders[h]) + '/' + self.samples[i] + '/IV/' + self.samples[i] + '.drk')
                     self.ax.plot(iv[1], iv[0], label=str(self.hours[h]) + 'h')
                     self.bx.plot(div[1], div[0], label=str(self.hours[h]) + 'h')
+
+                    self.ax.set_xlabel('Voltage [V]')
+                    self.ax.set_ylabel('Current [A]')
+                    self.ax.set_title('Light IV')
+                    self.ax.legend()
+                    self.bx.set_xlabel('Voltage [V]')
+                    self.bx.set_ylabel('Current [A]')
+                    self.bx.set_title('Dark IV')
+                    self.bx.legend()
+
+        elif self.machineRb.get() == 2:
+            # get IV from excel
+            print('thin film')
         else:
             for h in self.hours:
                 if os.path.exists(self.filePath + '/' + self.samples[i] + '/' + str(h) + '.csv'):
                     iv = Data.Data.getDataListSm(self.filePath + '/' + self.samples[i] + '/' + str(h) + '.csv')
                     self.bx.plot(iv[1], iv[0], label=str(h) + 'h')
+                    self.bx.set_xlabel('Voltage [V]')
+                    self.bx.set_ylabel('Current [A]')
+                    self.bx.set_title('Dark IV')
+                    self.bx.legend()
+            if os.path.exists(self.filePath + '/' + self.samples[i] + '/' + 'Rsh.csv'):
+                self.rsh = Data.Data.getDataListSm(self.filePath + '/' + self.samples[i] + '/' + 'Rsh.csv')
+                self.ax.plot(self.rsh[1], self.rsh[0], label=str(self.samples[i]))
+                self.ax.set_xlabel('Time [min]')
+                self.ax.set_ylabel('Rsh [Ohm]')
+                self.ax.set_title('Rsh')
+                self.ax.legend()
 
-        self.ax.set_xlabel('Voltage [V]')
-        self.ax.set_ylabel('Current [A]')
-        self.ax.set_title('Light IV')
-        self.ax.legend()
-        self.bx.set_xlabel('Voltage [V]')
-        self.bx.set_ylabel('Current [A]')
-        self.bx.set_title('Dark IV')
-        self.bx.legend()
         self.canvas.draw()
         self.canvas2.draw()
 
-        self.elImage()
+        # self.elImage()
         self.table()
 
     def table(self):
         for widget in self.tFrame.winfo_children():
             widget.destroy()
-        dirname = self.filePath
-        filespec = str(self.subfolders[-1]) + '-' + '*' + self.wbName
-        file = glob.glob(os.path.join(dirname,filespec))[0]
-        if os.path.exists(file):
+        if self.machineRb.get() == 1:
+            dirname = self.filePath
+            filespec = str(self.subfolders[-1]) + '-' + '*' + self.wbName
+            file = glob.glob(os.path.join(dirname,filespec))[0]
+            if os.path.exists(file):
+                ttk.Separator(self.tFrame, orient=HORIZONTAL, style='My.TSeparator').grid(row=1, columnspan=9, sticky='WE', padx=5)
+
+                columnH = 0
+                columnP = 2
+                columnI = 4
+                columnV = 6
+                columnF = 8
+
+                self.titleH = ttk.Label(self.tFrame, text='Time [h]', style='My.TLabel').grid(sticky='NW', row=0, column=columnH, padx=5)
+                ttk.Separator(self.tFrame, orient=VERTICAL, style='My.TSeparator').grid(row=0, column=1, rowspan=len(self.hours)+2, sticky='NS')
+                self.titleP = ttk.Label(self.tFrame, text='%PID [%]', style='My.TLabel').grid(sticky='NW', row=0, column=columnP, padx=5)
+                ttk.Separator(self.tFrame, orient=VERTICAL, style='My.TSeparator').grid(row=0, column=3,rowspan=len(self.hours) + 2, sticky='NS')
+                self.titleI = ttk.Label(self.tFrame, text='Isc [mA]', style='My.TLabel').grid(sticky='NW', row=0, column=columnI,padx=5)
+                ttk.Separator(self.tFrame, orient=VERTICAL, style='My.TSeparator').grid(row=0, column=5,rowspan=len(self.hours) + 2, sticky='NS')
+                self.titleV = ttk.Label(self.tFrame, text='Voc [mV]', style='My.TLabel').grid(sticky='NW', row=0, column=columnV,padx=5)
+                ttk.Separator(self.tFrame, orient=VERTICAL, style='My.TSeparator').grid(row=0, column=7,rowspan=len(self.hours) + 2,sticky='NS')
+                self.titleF = ttk.Label(self.tFrame, text='FF [%]', style='My.TLabel').grid(sticky='NW', row=0, column=columnF,padx=5)
+
+                for i in range(0, len(self.hours)):
+                    # get %PID from Excel
+                    wb = openpyxl.load_workbook(file, data_only=True)
+                    j = self.sampleRb.get()
+                    activeSheet = wb[self.samples[j]]
+                    if activeSheet.cell(row=i+2, column=17).value is not None:
+                        labelP = round(activeSheet.cell(row=i+2, column=17).value,2)
+                    else:
+                        labelP = '' # label over label -> update
+                    if activeSheet.cell(row=i + 2, column=5).value is not None:
+                        labelI = activeSheet.cell(row=i + 2, column=5).value
+                    else:
+                        labelI = ''
+                    if activeSheet.cell(row=i + 2, column=7).value is not None:
+                        labelV = activeSheet.cell(row=i + 2, column=7).value
+                    else:
+                        labelV = ''
+                    if activeSheet.cell(row=i + 2, column=8).value is not None:
+                        labelF = activeSheet.cell(row=i + 2, column=8).value
+                    else:
+                        labelF = ''
+
+                    ttk.Label(self.tFrame, text=str(self.hours[i]), style='My.TLabel').grid(row=i + 2, column=columnH, padx=5, sticky='WE')
+                    ttk.Label(self.tFrame, text=labelP, style='My.TLabel').grid(row=i+2, column=columnP, padx=5, sticky='WE')
+                    ttk.Label(self.tFrame, text=labelI, style='My.TLabel').grid(row=i + 2, column=columnI, padx=5, sticky='WE')
+                    ttk.Label(self.tFrame, text=labelV, style='My.TLabel').grid(row=i + 2, column=columnV, padx=5, sticky='WE')
+                    ttk.Label(self.tFrame, text=labelF, style='My.TLabel').grid(row=i + 2, column=columnF, padx=5, sticky='WE')
+        elif self.machineRb.get() == 2:
+            print('thin film')
+        else: #------------------------------------------------------------------ TESTEN -----------------------------------------------------
             ttk.Separator(self.tFrame, orient=HORIZONTAL, style='My.TSeparator').grid(row=1, columnspan=9, sticky='WE', padx=5)
 
             columnH = 0
-            columnP = 2
-            columnI = 4
-            columnV = 6
-            columnF = 8
+            columnR = 2
 
-            self.titleH = ttk.Label(self.tFrame, text='Time [h]', style='My.TLabel').grid(sticky='NW', row=0, column=columnH, padx=5)
+            self.titleH = ttk.Label(self.tFrame, text='Time [min]', style='My.TLabel').grid(sticky='NW', row=0, column=columnH, padx=5)
             ttk.Separator(self.tFrame, orient=VERTICAL, style='My.TSeparator').grid(row=0, column=1, rowspan=len(self.hours)+2, sticky='NS')
-            self.titleP = ttk.Label(self.tFrame, text='%PID', style='My.TLabel').grid(sticky='NW', row=0, column=columnP, padx=5)
-            ttk.Separator(self.tFrame, orient=VERTICAL, style='My.TSeparator').grid(row=0, column=3,rowspan=len(self.hours) + 2, sticky='NS')
-            self.titleI = ttk.Label(self.tFrame, text='Isc [mA]', style='My.TLabel').grid(sticky='NW', row=0, column=columnI,padx=5)
-            ttk.Separator(self.tFrame, orient=VERTICAL, style='My.TSeparator').grid(row=0, column=5,rowspan=len(self.hours) + 2, sticky='NS')
-            self.titleV = ttk.Label(self.tFrame, text='Voc [mV]', style='My.TLabel').grid(sticky='NW', row=0, column=columnV,padx=5)
-            ttk.Separator(self.tFrame, orient=VERTICAL, style='My.TSeparator').grid(row=0, column=7,rowspan=len(self.hours) + 2,sticky='NS')
-            self.titleF = ttk.Label(self.tFrame, text='FF [%]', style='My.TLabel').grid(sticky='NW', row=0, column=columnF,padx=5)
+            self.titleR = ttk.Label(self.tFrame, text='Rsh [Ohm]', style='My.TLabel').grid(sticky='NW', row=0, column=columnR, padx=5)
 
-            for i in range(0, len(self.hours)):
-                # get %PID from Excel
-                wb = openpyxl.load_workbook(file, data_only=True)
-                j = self.sampleRb.get()
-                activeSheet = wb[self.samples[j]]
-                if activeSheet.cell(row=i+2, column=17).value is not None:
-                    labelP = round(activeSheet.cell(row=i+2, column=17).value,2)
-                else:
-                    labelP = '' # label over label -> update
-                if activeSheet.cell(row=i + 2, column=5).value is not None:
-                    labelI = activeSheet.cell(row=i + 2, column=5).value
-                else:
-                    labelI = ''
-                if activeSheet.cell(row=i + 2, column=7).value is not None:
-                    labelV = activeSheet.cell(row=i + 2, column=7).value
-                else:
-                    labelV = ''
-                if activeSheet.cell(row=i + 2, column=8).value is not None:
-                    labelF = activeSheet.cell(row=i + 2, column=8).value
-                else:
-                    labelF = ''
+            i = 0
+            print(self.rsh)
+            for r in range(0, len(self.rsh[1])):
+                print('-----------')
+                print(str(self.rsh[1][r]))
+                print(str(self.hours[i]))
+                if int(self.rsh[1][r]) == int(self.hours[i]):
+                    labelR = self.rsh[0][r]
+                    print('hour: ' + str(self.hours[i]) + ' - Rsh: ' + str(labelR))
+                    ttk.Label(self.tFrame, text=str(self.hours[i]), style='My.TLabel').grid(row=i + 2, column=columnH, padx=5, sticky='WE')
+                    ttk.Label(self.tFrame, text=labelR, style='My.TLabel').grid(row=i+2, column=columnR, padx=5, sticky='WE')
+                    i = i + 1
+                    if i >= len(self.hours):
+                        break
 
-                ttk.Label(self.tFrame, text=str(self.hours[i]), style='My.TLabel').grid(row=i + 2, column=columnH, padx=5, sticky='WE')
-                ttk.Label(self.tFrame, text=labelP, style='My.TLabel').grid(row=i+2, column=columnP, padx=5, sticky='WE')
-                ttk.Label(self.tFrame, text=labelI, style='My.TLabel').grid(row=i + 2, column=columnI, padx=5, sticky='WE')
-                ttk.Label(self.tFrame, text=labelV, style='My.TLabel').grid(row=i + 2, column=columnV, padx=5, sticky='WE')
-                ttk.Label(self.tFrame, text=labelF, style='My.TLabel').grid(row=i + 2, column=columnF, padx=5, sticky='WE')
-
+            print('done')
+            # for i in range(0, len(self.hours)):
+            #     # get Rsh from Excel
+            #     wb = openpyxl.load_workbook(file, data_only=True)
+            #     j = self.sampleRb.get()
+            #     activeSheet = wb['Rsh']
+            #     if str(activeSheet.cell(row=i+2, column=1+j*3).value) == str(i):
+            #         labelR = activeSheet.cell(row=i+2, column=2+j*3).value
+            #     else:
+            #         labelR = '' # label over label -> update
+            #     print('hour: ' + str(self.hours[i]) + ' - Rsh: ' + str(labelR))
+            #     ttk.Label(self.tFrame, text=str(self.hours[i]), style='My.TLabel').grid(row=i + 2, column=columnH, padx=5, sticky='WE')
+            #     ttk.Label(self.tFrame, text=labelR, style='My.TLabel').grid(row=i+2, column=columnR, padx=5, sticky='WE')
 
     def elImage(self):
         # EL image
@@ -370,10 +429,14 @@ class Application(tk.Frame):
             self.iv.config(state=NORMAL)
             self.eqe.config(state=NORMAL)
             self.photo.config(state=NORMAL)
+            self.everyTimeLabel.config(text='h')
+            self.everyTimeLabel.update()
         else:
             self.iv.config(state=DISABLED)
             self.eqe.config(state=DISABLED)
             self.photo.config(state=DISABLED)
+            self.everyTimeLabel.config(text='min')
+            self.everyTimeLabel.update()
 
     # def remove(self, event):
     #     """
@@ -423,25 +486,27 @@ class Application(tk.Frame):
                 self.fileVar.set(self.filename)
                 self.wbName = self.filename.split('/')[-1]
                 self.filePath = self.filename.replace(self.wbName, '')
-                for f in listdir(self.filePath):
-                    if self.machineRb.get() == 1:
-                        if os.path.isdir(self.filePath + f):
-                            for g in listdir(self.filePath + f):
-                                if os.path.isdir(self.filePath + f + '/' + g):
-                                    self.samples.append(g)
-                                    # rb = tk.IntVar()
-                        break
-                    elif self.machineRb.get() == 2:
-                        print('thin film')
-                    else:
-                        if os.path.isdir(self.filePath + f):
-                            self.samples.append(f)
+
+    def getSamples(self):
+        for f in listdir(self.filePath):
+            if self.machineRb.get() == 1:
+                if os.path.isdir(self.filePath + f):
+                    for g in listdir(self.filePath + f):
+                        if os.path.isdir(self.filePath + f + '/' + g):
+                            self.samples.append(g)
                             # rb = tk.IntVar()
-                if self.samples != []:
-                    for i in range(0,len(self.samples)):
-                        rb = ttk.Radiobutton(self.cbFrame, text=self.samples[i], variable=self.sampleRb, value=i,
-                                        style='My.TRadiobutton')
-                        rb.pack(side='left', fill=None, expand=False, padx=(0,5))
+                break
+            elif self.machineRb.get() == 2:
+                print('thin film')
+            else:
+                if os.path.isdir(self.filePath + f):
+                    self.samples.append(f)
+                    # rb = tk.IntVar()
+        if self.samples != []:
+            for i in range(0, len(self.samples)):
+                rb = ttk.Radiobutton(self.cbFrame, text=self.samples[i], variable=self.sampleRb, value=i,
+                                     style='My.TRadiobutton')
+                rb.pack(side='left', fill=None, expand=False, padx=(0, 5))
 
     # def select(self, event):
     #     """
@@ -504,6 +569,7 @@ class Application(tk.Frame):
 
     def begin(self):
         rb = self.machineRb.get()
+        self.getSamples()
         if rb == 1:
             self.beginBifi()
         elif rb == 2:
@@ -550,6 +616,21 @@ class Application(tk.Frame):
                         if int(self.hourInput.get()) <= int(times[h]) and int(times[h]) <= int(self.hourInput2.get()):
                             self.hours.append(int(times[h]))
                             self.subfolders.append(allsubfolders[h])
+                #data every
+                if self.timeCb.get() == 1:
+                    print('---timeCb---')
+                    threshold = int(self.timeInt.get())
+                    times = self.hours
+                    self.hours = [times[0]]
+                    allsubfolders = self.subfolders
+                    self.subfolders = [allsubfolders[0]]
+                    lastVal = 0
+                    for h in range(0, len(times)):
+                        if int(times[h]) >= int(lastVal) + int(threshold):
+                            self.hours.append(times[h])
+                            self.subfolders.append(allsubfolders[h])
+                            lastVal = int(times[h])
+
                 print(self.hours)
                 print(self.subfolders)
                 if Main.Main.beginBifi(self, self.hours, self.subfolders, self.wbName, self.filePath, self.ivCb.get(), self.eqeCb.get(), self.photoCb.get()):

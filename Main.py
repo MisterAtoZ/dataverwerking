@@ -269,13 +269,14 @@ class Main():
             # hours.sort(key=int)
             hoursSorted = hours
             print(hoursSorted)
-            for h in hoursSorted:
-                #if file exists
-                iv = Data.Data.getDataListSm(str(modulePath) + '/' + str(h) + '.csv')
-                WorkbookLayout.WorkbookLayout.setIVSm(activeSheet, str(h), iv)
-            Grafieken.Grafieken.makeChartPscSm(n, wb, hoursSorted, 'Sm')
             rsh = Data.Data.getDataListSm(str(modulePath) + '/' + 'Rsh.csv')
             WorkbookLayout.WorkbookLayout.setRsh(wb, rsh, n)
+            for h in hoursSorted:
+                #if file exists
+                if os.path.exists(str(modulePath) + '/' + str(h) + '.csv'):
+                    iv = Data.Data.getDataListSm(str(modulePath) + '/' + str(h) + '.csv')
+                    WorkbookLayout.WorkbookLayout.setIVSm(activeSheet, str(h), iv)
+            Grafieken.Grafieken.makeChartPscSm(n, wb, hoursSorted, 'Sm')
         Grafieken.Grafieken.makeChartRsh(wb, sheetNames)
 
         print('Saving...')

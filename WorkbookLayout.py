@@ -87,6 +87,8 @@ class WorkbookLayout():
         """
         wb = workbook
         # create the module sheets
+        if 'Rsh' not in wb.sheetnames:
+            wb.create_sheet('Rsh')
         for n in range(0, len(sheetNames), 1):
             if sheetNames[n] not in wb.sheetnames:
                 wb.create_sheet(sheetNames[n])
@@ -242,7 +244,7 @@ class WorkbookLayout():
         hours = data[1]
         rsh = data[0]
 
-        sheet = wb['Blad1']
+        sheet = wb['Rsh']
 
         if sheet.max_column == 1:
             column1 = sheet.max_column

@@ -110,7 +110,7 @@ class Grafieken():
                     chartObj.y_axis.title = 'Voc [mV]'
                     y = 7
                 if j == 3:
-                    chartObj.y_axis.title = 'Current [mA]'
+                    chartObj.y_axis.title = 'Isc [mA]'
                     y = 5
 
             for i in range(0, len(sheetNames), 1):
@@ -196,7 +196,7 @@ class Grafieken():
         sheet.add_chart(chartObj)
 
     def makeChartRsh(wb, modules):
-        sheet = wb['Blad1']
+        sheet = wb['Rsh']
 
         chartObj = openpyxl.chart.ScatterChart()
         chartObj.legend.position = 'b'

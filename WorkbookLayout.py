@@ -264,13 +264,13 @@ class WorkbookLayout():
             sheet.cell(row=j + 3, column=column2).value = rsh[j]
 
 
-    # def natural_sort(l):
-    #     """
-    #     sorts a list in a natural way, this means lower number values come first in the list
-    #     :param l: list which needs to be sorted
-    #     :return: sorted list
-    #     source: https://stackoverflow.com/questions/4836710/does-python-have-a-built-in-function-for-string-natural-sort
-    #     """
-    #     convert = lambda text: int(text) if text.isdigit() else text.lower()
-    #     alphanum_key = lambda key: [convert(c) for c in re.split('([0-9]+)', key)]
-    #     return sorted(l, key=alphanum_key)
+    def natural_sort(l):
+        """
+        sorts a list in a natural way, this means lower number values come first in the list
+        :param l: list which needs to be sorted
+        :return: sorted list
+        source: https://stackoverflow.com/questions/4836710/does-python-have-a-built-in-function-for-string-natural-sort
+        """
+        convert = lambda text: int(text) if text.isdigit() else text.lower()
+        alphanum_key = lambda key: [convert(c) for c in re.split('([0-9]+)', key)]
+        return sorted(l, key=alphanum_key)

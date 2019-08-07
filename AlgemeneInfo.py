@@ -113,5 +113,4 @@ class AlgemeneInfo():
                        i = i + 1
                else:
                    #calculate PID
-                   activeSheet.cell(row=2+t, column=6).value = 100-100*float(activeSheet.cell(row=2+t, column=4).value)/float(activeSheet.cell(row=2,column=4).value)
-                   break
+                    activeSheet.cell(row=2+t, column=6).value = 100-100*float(activeSheet.cell(row=2+t, column=4).value)/float(activeSheet.cell(row=2,column=4).value)
